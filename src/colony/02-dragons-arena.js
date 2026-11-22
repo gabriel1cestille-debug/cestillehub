@@ -638,7 +638,7 @@
     const ZPT_STATIC = new Set(['ambar','arquimago_astral','aurora','brisa','bronze','cascalho','chamas','cinza','colosso_obsidiana','crono_engenheiro','demonio_cinzas','eclipse','esmeralda','floresta','guardiao_botanico','hamster','mare','morcego','morcego_noturno','musgo','nimbo','sabio','sereia_glacial','tempestade','vigia','vulcao']);
     function zPortrait(id) {
         if (ZPT.cache[id] !== undefined) return ZPT.cache[id];
-        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=6'; return ZPT.cache[id]; }
+        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=7'; return ZPT.cache[id]; }
         if (!CL3.sc || !zPortInit()) return '';
         let g = null;
         const rimMap = ZOO.rimU || {}, prevRim = (rimMap[id] && rimMap[id].value !== undefined) ? rimMap[id].value : null;

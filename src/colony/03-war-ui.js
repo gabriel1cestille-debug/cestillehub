@@ -4423,8 +4423,21 @@ return PreviewRarityAura;}
     }
     function warLegFlash(col, strong) { try { const el = warLegOverlay('wf-legflash', 'mix-blend-mode:screen'); if (!el) return; el.style.background = col; el.style.transition = 'none'; el.style.opacity = strong ? '0.5' : '0.22'; void el.offsetWidth; el.style.transition = 'opacity .26s ease-out'; el.style.opacity = '0'; } catch (er) {} }
     function warLegDim(dur, hex) { return; /* pedido do Gabriel: a tela NÃO escurece nos especiais */ try { const el = warLegOverlay('wf-legdim', 'transition:opacity .25s ease'); if (!el) return; el.style.background = hex || '#03020c'; el.style.opacity = '0.4'; clearTimeout(el._t); el._t = setTimeout(() => { el.style.opacity = '0'; }, dur * 1000); } catch (er) {} }
-    /* ---------- Especiais 3D V2 (8 Lendários + Tsunami Oceânico) com shaders GLSL & alpha-safe smoke ---------- */
-    const WAR_V2_SP = new Set(['vigia', 'eclipse', 'arquimago_astral', 'demonio_cinzas', 'colosso_obsidiana', 'morcego', 'hamster', 'nimbo', 'sereia_glacial', 'mare']);
+    /* ---------- Especiais 3D V2 (TODOS os 31 dragões!) com shaders GLSL & alpha-safe smoke ---------- */
+    const WAR_V2_STYLE = {
+        musgo: ['spore_vines', '#5fb842', '#d9f99d'], argila: ['seismic_boulder', '#d9894a', '#fde68a'],
+        orvalho: ['hydro_trident', '#5fc8ff', '#e0f2fe'], brisa: ['gale_blades', '#a5f3fc', '#ffffff'],
+        cascalho: ['seismic_boulder', '#a8a29e', '#fbbf24'], cinza: ['ash_vortex', '#94a3b8', '#fb923c'],
+        floresta: ['spore_vines', '#22c55e', '#bef264'], ambar: ['magma_meteor', '#f59e0b', '#fef08a'],
+        geada: ['ice_barrage', '#7dd3fc', '#ffffff'], bronze: ['seismic_boulder', '#d97706', '#38bdf8'],
+        guardiao_botanico: ['spore_vines', '#4ade80', '#fef08a'], prisma: ['prism_beam', '#38e8ff', '#e879f9'],
+        esmeralda: ['emerald_daggers', '#14e872', '#a7f3d0'], solar: ['solar_corona', '#fbbf24', '#fff7ed'],
+        sabio: ['aurora_serpent', '#34d399', '#fef08a'], morcego_noturno: ['sonic_rings', '#3b82f6', '#7dd3fc'],
+        vulcao: ['magma_meteor', '#ff531a', '#fde047'], tempestade: ['storm_bolt', '#657dff', '#e0f2fe'],
+        aurora: ['aurora_serpent', '#f472b6', '#7dd3fc'], chamas: ['magma_meteor', '#ff7a1a', '#fef08a'],
+        crono_engenheiro: ['chrono_gears', '#e879f9', '#fbbf24']
+    };
+    const WAR_V2_SP = new Set(['vigia', 'eclipse', 'arquimago_astral', 'demonio_cinzas', 'colosso_obsidiana', 'morcego', 'hamster', 'nimbo', 'sereia_glacial', 'mare', ...Object.keys(WAR_V2_STYLE)]);
     function warV2EnergyMat(T, c1, c2, spd, hdr, op) {
         const u = { uT: { value: 0 }, uC1: { value: new T.Color(c1) }, uC2: { value: new T.Color(c2 || '#ffffff') }, uSpd: { value: spd || 3 }, uHdr: { value: hdr || 1.6 }, uOp: { value: op === undefined ? 0.95 : op } };
         return new T.ShaderMaterial({
@@ -4786,7 +4799,273 @@ return PreviewRarityAura;}
             }, () => { root.remove(wGrp); crest.geometry.dispose(); foam.geometry.dispose(); wMat.dispose(); fMat.dispose(); });
             return true;
         }
-        return false;
+
+        const stDef = WAR_V2_STYLE[id];
+        if (!stDef) return false;
+        const style = stDef[0], c1 = stDef[1], c2 = stDef[2];
+
+        if (style === 'hydro_trident') {
+            warV2Mandala(T, root, basePos, 'magic_05', c1, 5.4, 1.4, 2.2);
+            const fPts = [new T.Vector2(0.42, 0), new T.Vector2(1.0, 0.85), new T.Vector2(1.5, 2.0), new T.Vector2(2.2, 3.2), new T.Vector2(2.6, 4.0)];
+            const fMat = warV2EnergyMat(T, c1, '#ffffff', 4.2, 1.8, 0.85);
+            const funnel = new T.Mesh(new T.LatheGeometry(fPts, 24), fMat); funnel.position.copy(basePos); funnel.scale.setScalar(0.01); root.add(funnel);
+            const tMat = warV2EnergyMat(T, c1, '#ffffff', 3.0, 2.0, 1.0), shG = new T.CylinderGeometry(0.06, 0.04, 2.6, 8), prG = new T.ConeGeometry(0.10, 0.8, 6);
+            const trs = [0, 1, 2].map(i => {
+                const g = new T.Group(); g.add(new T.Mesh(shG, tMat));
+                [-0.3, 0, 0.3].forEach(z => { const pr = new T.Mesh(prG, tMat); pr.position.set(0, -1.5, z); pr.rotation.x = Math.PI; g.add(pr); });
+                const ang = (i - 1) * 0.78, orig = new T.Vector3(end.x + Math.sin(ang) * 1.4, 6.0 + i * 0.4, end.z + Math.cos(ang) * 1.0 - 0.5);
+                g.position.copy(orig); g.scale.setScalar(0.01); root.add(g); return { g, orig, dl: 0.42 + i * 0.14, hit: 0 };
+            });
+            let prev = 0; const dur = 1.15;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; const age = p * dur; fMat.uniforms.uT.value = tMat.uniforms.uT.value = age;
+                funnel.scale.setScalar(Math.min(1, p * 2.6)); funnel.rotation.y += 6.5 * dt;
+                if (p < 0.85 && Math.random() < 0.6) { const a = p * 18 + Math.random() * 2; warP({ tex: 'twirl_01', col: c1, pos: new T.Vector3(end.x + Math.cos(a) * (1.7 - p * 0.6), 0.4 + p * 3.2, end.z + Math.sin(a) * (1.7 - p * 0.6)), vel: new T.Vector3(0, 2.6, 0), s0: 0.6, s1: 1.5, life: 0.34, op: 0.85 }); }
+                trs.forEach((tr, idx) => {
+                    if (p < 0.42) { tr.g.scale.setScalar(p / 0.42); tr.g.rotation.y += 6 * dt; }
+                    else if (age >= tr.dl && !tr.hit) {
+                        const k = Math.min(1, (age - tr.dl) / 0.24); tr.g.position.lerpVectors(tr.orig, end, k * k);
+                        if (k >= 1) { tr.hit = 1; tr.g.visible = false; if (idx === 2) warV2Climax(T, root, end, c1, c2, false); else warV2Dome(T, root, end, c1, c2, 2.4, 0.26); }
+                    }
+                });
+            }, () => { root.remove(funnel); trs.forEach(tr => root.remove(tr.g)); funnel.geometry.dispose(); shG.dispose(); prG.dispose(); fMat.dispose(); tMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'ice_barrage') {
+            warV2Mandala(T, root, basePos, 'magic_03', c1, 5.4, 1.4, -1.8);
+            const lMat = warV2EnergyMat(T, c1, '#ffffff', 2.4, 2.0, 0.95);
+            const lGeo = new T.LatheGeometry([new T.Vector2(0.001, -0.8), new T.Vector2(0.17, -0.15), new T.Vector2(0.13, 0.35), new T.Vector2(0.001, 0.8)], 6);
+            const sps = []; for (let i = 0; i < 8; i++) { const m = new T.Mesh(lGeo, lMat); root.add(m); sps.push({ m, ang: (i / 8) * 6.283 }); }
+            const prMat = warV2EnergyMat(T, c1, '#ffffff', 3.2, 2.0, 0.85), prGeo = new T.OctahedronGeometry(1.65, 0);
+            const prison = new T.Mesh(prGeo, prMat); prison.position.copy(end); prison.scale.setScalar(0.01); root.add(prison);
+            let prev = 0; const dur = 1.18;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; lMat.uniforms.uT.value = prMat.uniforms.uT.value = p * dur;
+                sps.forEach((o, i) => {
+                    const a = o.ang + p * 5.2;
+                    if (p < 0.55) { const r = 2.1 - p * 0.4; o.m.position.set(end.x + Math.cos(a) * r, 4.7 + Math.sin(p * 8 + i) * 0.25, end.z + Math.sin(a) * r); o.m.lookAt(end); o.m.rotateX(Math.PI / 2); }
+                    else { const k = Math.min(1, (p - 0.55) / 0.28); o.m.position.lerpVectors(new T.Vector3(end.x + Math.cos(a) * 1.7, 4.7, end.z + Math.sin(a) * 1.7), end, k * k); }
+                });
+                if (p > 0.66) { prison.scale.setScalar(Math.min(1, (p - 0.66) * 4)); prison.rotation.y += 3 * dt; }
+                if (Math.random() < 0.5) warP({ tex: 'star_02', col: c1, pos: end.clone().add(new T.Vector3((Math.random() - 0.5) * 2.6, Math.random() * 3.4, (Math.random() - 0.5) * 2.6)), s0: 0.4, s1: 0.05, life: 0.38, op: 0.95 });
+            }, () => { sps.forEach(o => root.remove(o.m)); root.remove(prison); lGeo.dispose(); prGeo.dispose(); lMat.dispose(); prMat.dispose(); warV2Climax(T, root, end, c1, c2, false); });
+            return true;
+        }
+
+        if (style === 'spore_vines') {
+            warV2Mandala(T, root, basePos, 'magic_02', c1, 5.6, 1.4, 1.6);
+            const vMat = warV2EnergyMat(T, c1, c2, 3.0, 1.9, 0.98), vines = [];
+            for (let k = 0; k < 8; k++) {
+                const a0 = (k / 8) * 6.283, pts = [];
+                for (let s = 0; s <= 10; s++) { const f = s / 10, ang = a0 + f * 2.4, rad = 1.85 * (1 - f * 0.62); pts.push(new T.Vector3(end.x + Math.cos(ang) * rad, f * 3.5, end.z + Math.sin(ang) * rad)); }
+                const v = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 16, 0.11, 6, false), vMat); v.scale.set(1, 0.01, 1); root.add(v); vines.push({ v, dl: k * 0.05 });
+            }
+            const dur = 1.15;
+            warTw(dur, p => {
+                const age = p * dur; vMat.uniforms.uT.value = age;
+                if (Math.random() < 0.65) warP({ tex: 'star_02', col: c2, pos: new T.Vector3(end.x + (Math.random() - 0.5) * 3.4, 0.2, end.z + (Math.random() - 0.5) * 3.4), vel: new T.Vector3(0, 2.5 + Math.random() * 1.8, 0), s0: 0.45, s1: 0.08, life: 0.52, op: 0.95 });
+                vines.forEach(o => { if (age > o.dl) o.v.scale.y = Math.min(1, (age - o.dl) / 0.34); });
+            }, () => { vines.forEach(o => { root.remove(o.v); o.v.geometry.dispose(); }); vMat.dispose(); warV2Climax(T, root, end, c1, c2, false); });
+            return true;
+        }
+
+        if (style === 'prism_beam') {
+            warV2Mandala(T, root, basePos, 'magic_04', c1, 5.2, 1.35, 2.4);
+            const pMat = warV2EnergyMat(T, c1, c2, 3.8, 2.0, 1.0), oGeo = new T.OctahedronGeometry(0.44, 0), rGeo = new T.TorusGeometry(0.65, 0.04, 8, 22);
+            const pPos = [new T.Vector3(end.x - 3.4, 3.5, end.z + 1.5), new T.Vector3(end.x - 3.4, 3.5, end.z - 1.5), new T.Vector3(end.x - 1.1, 5.2, end.z)];
+            const prisms = pPos.map(pp => { const g = new T.Group(); g.add(new T.Mesh(oGeo, pMat), new T.Mesh(rGeo, pMat)); g.position.copy(pp); g.scale.setScalar(0.01); root.add(g); return g; });
+            const bMat = warV2EnergyMat(T, c1, '#ffffff', 6.5, 2.1, 0.95);
+            const beams = pPos.map(pp => { const b = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, pp.distanceTo(end), 10, 1, true), bMat); b.position.copy(pp).lerp(end, 0.5); b.lookAt(end); b.rotateX(Math.PI / 2); b.visible = false; root.add(b); return b; });
+            let fired = 0, prev = 0; const dur = 1.08;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; pMat.uniforms.uT.value = bMat.uniforms.uT.value = p * dur;
+                prisms.forEach(g => { g.scale.setScalar(Math.min(1, p * 3.5)); g.rotation.y += 6 * dt; g.children[1].rotation.x += 9 * dt; });
+                beams.forEach(b => { b.visible = p > 0.24; const th = p < 0.68 ? 0.35 : Math.max(0.15, 3.6 * (1 - (p - 0.68) / 0.32)); b.scale.set(th, 1, th); });
+                if (p >= 0.68 && !fired) { fired = 1; warV2Climax(T, root, end, c1, c2, false); }
+                if (p > 0.3 && Math.random() < 0.55) warP({ tex: 'flare_01', col: c1, pos: end, s0: 0.5, s1: 1.8, life: 0.2, op: 0.85 });
+            }, () => { prisms.forEach(g => root.remove(g)); beams.forEach(b => { root.remove(b); b.geometry.dispose(); }); oGeo.dispose(); rGeo.dispose(); pMat.dispose(); bMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'emerald_daggers') {
+            const dMat = warV2EnergyMat(T, c1, '#ffffff', 3.5, 2.0, 0.98);
+            const dGeo = new T.LatheGeometry([new T.Vector2(0.001, -0.58), new T.Vector2(0.14, -0.1), new T.Vector2(0.001, 0.62)], 4);
+            const dgs = [];
+            for (let i = 0; i < 10; i++) {
+                const m = new T.Mesh(dGeo, dMat), fa = ((i / 9) - 0.5) * 1.9, home = new T.Vector3(start.x - 0.4, start.y + 0.6 + Math.cos(fa) * 1.8, start.z + Math.sin(fa) * 2.0);
+                m.position.copy(home); m.lookAt(end); m.rotateX(Math.PI / 2); m.scale.setScalar(0.01); root.add(m); dgs.push({ m, home, dl: 0.34 + i * 0.045, hit: 0 });
+            }
+            let prev = 0; const dur = 1.12;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; const age = p * dur; dMat.uniforms.uT.value = age;
+                dgs.forEach((o, i) => {
+                    if (age < o.dl) { o.m.scale.setScalar(Math.min(1, age * 3.5)); o.m.rotation.y += 6 * dt; }
+                    else if (!o.hit) {
+                        const k = Math.min(1, (age - o.dl) / 0.32); o.m.position.lerpVectors(o.home, end, k * k); o.m.position.y += Math.sin(k * Math.PI) * (i % 2 ? 1.1 : -0.4);
+                        if (Math.random() < 0.4) warP({ tex: 'star_02', col: c1, pos: o.m.position, s0: 0.42, s1: 0.05, life: 0.24, op: 0.95 });
+                        if (k >= 1) { o.hit = 1; o.m.visible = false; if (i === 9) warV2Climax(T, root, end, c1, c2, false); }
+                    }
+                });
+            }, () => { dgs.forEach(o => root.remove(o.m)); dGeo.dispose(); dMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'storm_bolt') {
+            warV2Mandala(T, root, basePos, 'circle_05', c1, 5.4, 1.35, 3.0);
+            const cPos = new T.Vector3(end.x, 6.2, end.z); let nextB = 0.36, cnt = 0; const dur = 1.15;
+            warTw(dur, p => {
+                const age = p * dur;
+                if (Math.random() < 0.7) warP({ tex: 'smoke_01', col: '#1c1836', pos: cPos.clone().add(new T.Vector3((Math.random() - 0.5) * 3.4, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 2.2)), vel: new T.Vector3((Math.random() - 0.5) * 1.1, 0.2, (Math.random() - 0.5) * 1.1), s0: 1.9, s1: 3.2, life: 0.52, op: 0.76, add: false });
+                if (Math.random() < 0.5) warP({ tex: 'spark_01', col: c1, pos: cPos.clone().add(new T.Vector3((Math.random() - 0.5) * 2.4, -0.3, (Math.random() - 0.5) * 1.6)), s0: 0.85, s1: 1.7, life: 0.16, op: 1 });
+                if (age >= nextB && cnt < 5) {
+                    nextB += 0.15; cnt++;
+                    warV2Bolt(T, root, cPos, end, 9, 1.1, c1, c2, cnt === 5 ? 0.13 : 0.085, 0.20);
+                    if (cnt === 5) warV2Climax(T, root, end, c1, c2, false); else warV2Dome(T, root, end, c1, c2, 2.2, 0.22);
+                }
+            });
+            return true;
+        }
+
+        if (style === 'magma_meteor') {
+            warV2Mandala(T, root, basePos, 'circle_05', c1, 5.6, 1.4, 1.5);
+            const mMat = warV2EnergyMat(T, c1, '#fde047', 4.8, 2.0, 1.0), mets = [];
+            for (let i = 0; i < 4; i++) {
+                const m = new T.Mesh(new T.DodecahedronGeometry(i === 3 ? 0.74 : 0.46, 0), mMat);
+                const orig = new T.Vector3(end.x - 4.0 + (i - 1.5) * 0.75, 8.4 + i * 0.55, end.z + (i % 2 ? 0.65 : -0.65));
+                const tgt = end.clone().add(new T.Vector3((Math.random() - 0.5) * 0.7, 0, (Math.random() - 0.5) * 0.7));
+                m.position.copy(orig); m.visible = false; root.add(m); mets.push({ m, orig, tgt, dl: 0.14 + i * 0.20, hit: 0 });
+            }
+            let prev = 0; const dur = 1.25;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; const age = p * dur; mMat.uniforms.uT.value = age;
+                mets.forEach((o, i) => {
+                    if (age >= o.dl && !o.hit) {
+                        o.m.visible = true; const k = Math.min(1, (age - o.dl) / 0.34);
+                        o.m.position.lerpVectors(o.orig, o.tgt, k * k); o.m.rotation.x += 9 * dt; o.m.rotation.y += 7 * dt;
+                        warP({ tex: 'fire_01', col: c1, pos: o.m.position, vel: new T.Vector3(-1.1, 1.4, 0), s0: 0.8, s1: 1.9, life: 0.3, op: 0.9 });
+                        if (Math.random() < 0.55) warP({ tex: 'smoke_01', col: '#3b241c', pos: o.m.position, vel: new T.Vector3(-0.9, 1.6, 0), s0: 0.95, s1: 2.3, life: 0.5, op: 0.62, add: false });
+                        if (k >= 1) { o.hit = 1; o.m.visible = false; if (i < 3) warP({ tex: 'flame_04', col: '#fde047', pos: o.tgt, s0: 1.0, s1: 2.8, life: 0.36, op: 0.95 }); else warV2Climax(T, root, end, c1, c2, false); }
+                    }
+                });
+            }, () => { mets.forEach(o => { root.remove(o.m); o.m.geometry.dispose(); }); mMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'seismic_boulder') {
+            const spMat = new T.MeshStandardMaterial({ color: 0x221b2b, emissive: new T.Color(c1), emissiveIntensity: 1.4, roughness: 0.55 }), sps = [];
+            for (let w = 0; w < 3; w++) {
+                const wx = lerp(start.x + 1.1, end.x, (w + 1) / 3);
+                for (let k = -1; k <= 1; k++) {
+                    const pil = new T.Mesh(new T.ConeGeometry(0.36 + w * 0.08, 2.3 + w * 0.55, 5), spMat);
+                    pil.position.set(wx + (Math.random() - 0.5) * 0.35, -2.0, end.z + k * 0.9); root.add(pil);
+                    sps.push({ pil, w, dl: 0.16 + w * 0.24 });
+                }
+            }
+            const wh = [0, 0, 0]; const dur = 1.15;
+            warTw(dur, p => {
+                const age = p * dur;
+                sps.forEach(o => {
+                    if (age >= o.dl) {
+                        const k = Math.min(1, (age - o.dl) / 0.20); o.pil.position.y = lerp(-2.0, 1.05 + o.w * 0.25, 1 - Math.pow(1 - k, 3));
+                        if (k > 0.2 && k < 0.9 && Math.random() < 0.45) warP({ tex: 'smoke_03', col: '#4a3d35', pos: new T.Vector3(o.pil.position.x, 0.3, o.pil.position.z), vel: new T.Vector3((Math.random() - 0.5) * 1.8, 2.4 + Math.random() * 1.8, (Math.random() - 0.5) * 1.8), s0: 0.85, s1: 2.1, life: 0.52, op: 0.62, add: false });
+                        if (!wh[o.w] && k >= 0.65) { wh[o.w] = 1; if (o.w === 2) warV2Climax(T, root, end, c1, c2, false); else WARV.shake = Math.max(WARV.shake || 0, 0.28 + o.w * 0.12); }
+                    }
+                });
+            }, () => { sps.forEach(o => { root.remove(o.pil); o.pil.geometry.dispose(); }); spMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'solar_corona') {
+            const sPos = new T.Vector3(end.x - 1.4, 5.2, end.z), sMat = warV2EnergyMat(T, '#fbbf24', '#ffffff', 5.0, 2.1, 1.0);
+            const sun = new T.Mesh(new T.SphereGeometry(0.90, 20, 20), sMat); sun.position.copy(sPos); sun.scale.setScalar(0.01); root.add(sun);
+            const bMat = warV2EnergyMat(T, '#fde047', '#ffffff', 6.5, 2.0, 0.9);
+            const ray = new T.Mesh(new T.CylinderGeometry(0.18, 0.52, sPos.distanceTo(end), 14, 1, true), bMat);
+            ray.position.copy(sPos).lerp(end, 0.5); ray.lookAt(end); ray.rotateX(Math.PI / 2); ray.visible = false; root.add(ray);
+            let fired = 0, prev = 0; const dur = 1.38;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; sMat.uniforms.uT.value = bMat.uniforms.uT.value = p * dur;
+                sun.scale.setScalar(Math.min(1.3, p * 2.1)); sun.rotation.y += 3.5 * dt;
+                if (Math.random() < 0.6) warP({ tex: 'flare_01', col: '#fbbf24', pos: sPos.clone().add(new T.Vector3((Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 1.5, 0)), s0: 0.7, s1: 2.2, life: 0.26, op: 0.9 });
+                if (p >= 0.72) { ray.visible = true; const k = (p - 0.72) / 0.28, s = 1 + (1 - k) * 1.5; ray.scale.set(s, 1, s); if (!fired) { fired = 1; warV2Climax(T, root, end, '#fbbf24', '#ffffff', false); } }
+            }, () => { root.remove(sun, ray); sun.geometry.dispose(); ray.geometry.dispose(); sMat.dispose(); bMat.dispose(); });
+            return true;
+        }
+
+        if (style === 'aurora_serpent') {
+            const hGeo = new T.SphereGeometry(0.26, 10, 10), m1 = warV2EnergyMat(T, c1, '#ffffff', 4.5, 2.0, 1.0), m2 = warV2EnergyMat(T, c2, '#ffffff', 4.5, 2.0, 1.0);
+            const heads = [0, 1, 2].map(i => { const m = new T.Mesh(hGeo, i === 1 ? m2 : m1); m.position.copy(start); root.add(m); return m; });
+            const dur = 1.05;
+            warTw(dur, p => {
+                m1.uniforms.uT.value = m2.uniforms.uT.value = p * dur;
+                heads.forEach((h, i) => {
+                    const ph = i * 2.09, amp = Math.sin(p * Math.PI) * 1.9;
+                    h.position.lerpVectors(start, end, p); h.position.y += Math.sin(p * Math.PI * 3 + ph) * amp + 0.75 * Math.sin(p * Math.PI); h.position.z += Math.cos(p * Math.PI * 3 + ph) * amp;
+                    if (Math.random() < 0.75) warP({ tex: i === 1 ? 'star_02' : 'twirl_01', col: i === 1 ? c2 : c1, pos: h.position, s0: 0.6, s1: 1.35, life: 0.38, op: 0.9 });
+                });
+            }, () => { heads.forEach(h => root.remove(h)); hGeo.dispose(); m1.dispose(); m2.dispose(); warV2Climax(T, root, end, c1, c2, false); });
+            return true;
+        }
+
+        if (style === 'chrono_gears') {
+            warV2Mandala(T, root, basePos, 'magic_05', '#fbbf24', 5.4, 1.35, 2.2);
+            const cGrp = new T.Group(); cGrp.position.set(end.x, 3.5, end.z);
+            const hMat = new T.MeshBasicMaterial({ color: '#fef08a' }), gHB = new T.BoxGeometry(0.10, 1.3, 0.08), gHS = new T.BoxGeometry(0.12, 0.82, 0.08);
+            const pB = new T.Group(), mB = new T.Mesh(gHB, hMat); mB.position.y = 0.52; pB.add(mB); cGrp.add(pB);
+            const pS = new T.Group(), mS = new T.Mesh(gHS, hMat); mS.position.y = 0.30; pS.add(mS); cGrp.add(pS); root.add(cGrp);
+            const gMat = new T.MeshStandardMaterial({ color: 0xfbbf24, emissive: new T.Color(c1), emissiveIntensity: 1.3, metalness: 0.85, roughness: 0.2 }), tGeo = new T.BoxGeometry(0.20, 0.22, 0.14), gears = [], torGeos = [];
+            for (let g = 0; g < 3; g++) {
+                const gr = new T.Group(), tg = new T.TorusGeometry(0.9 + g * 0.4, 0.11, 8, 18); torGeos.push(tg); gr.add(new T.Mesh(tg, gMat));
+                for (let i = 0; i < 10; i++) { const a = (i / 10) * 6.283, tm = new T.Mesh(tGeo, gMat); tm.position.set(Math.cos(a) * (1.02 + g * 0.4), Math.sin(a) * (1.02 + g * 0.4), 0); gr.add(tm); }
+                gr.position.set(end.x, 2.1 + g * 0.5, end.z); gr.rotation.x = Math.PI / 2; gr.scale.setScalar(0.01); root.add(gr); gears.push({ gr, dir: g % 2 ? -1 : 1 });
+            }
+            let prev = 0; const dur = 1.15;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p;
+                gears.forEach(o => { o.gr.scale.setScalar(Math.min(1, p * 3)); o.gr.rotation.z += o.dir * (3 + p * 14) * dt; });
+                pB.rotation.z -= (8 + p * 22) * dt; pS.rotation.z -= (2 + p * 6) * dt;
+                if (Math.random() < 0.55) warP({ tex: 'spark_01', col: '#fef08a', pos: end.clone().add(new T.Vector3((Math.random() - 0.5) * 2.6, Math.random() * 3.0, (Math.random() - 0.5) * 2.6)), s0: 0.4, s1: 0.06, life: 0.28, op: 0.95 });
+            }, () => { gears.forEach(o => root.remove(o.gr)); root.remove(cGrp); gHB.dispose(); gHS.dispose(); tGeo.dispose(); torGeos.forEach(g => g.dispose()); hMat.dispose(); gMat.dispose(); warV2Climax(T, root, end, c1, '#fbbf24', false); });
+            return true;
+        }
+
+        if (style === 'sonic_rings') {
+            const rings = [], rMats = [];
+            for (let i = 0; i < 5; i++) {
+                const mat = new T.MeshBasicMaterial({ map: warAlphaFxTex('circle_05'), color: i % 2 ? c1 : c2, transparent: true, opacity: 0, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending });
+                const rm = new T.Mesh(new T.PlaneGeometry(1.7 + i * 0.32, 1.7 + i * 0.32), mat);
+                rm.position.copy(start).lerp(end, 0.1 + (i / 4) * 0.75); rm.rotation.y = Math.PI / 2; root.add(rm);
+                rings.push({ rm, mat, dl: i * 0.09 }); rMats.push(mat);
+            }
+            const bGeo = new T.OctahedronGeometry(0.17, 0), bm1 = new T.MeshBasicMaterial({ color: c1 }), bm2 = new T.MeshBasicMaterial({ color: c2 }), bats = [];
+            for (let i = 0; i < 14; i++) { const b = new T.Mesh(bGeo, i % 2 ? bm1 : bm2); b.scale.set(1.5, 0.35, 2.2); b.position.copy(start); root.add(b); bats.push({ b, oy: (Math.random() - 0.5) * 2.0, oz: (Math.random() - 0.5) * 2.2, dl: 0.20 + i * 0.04, hit: 0 }); }
+            let prev = 0; const dur = 1.12;
+            warTw(dur, p => {
+                const dt = (p - prev) * dur; prev = p; const age = p * dur;
+                rings.forEach(o => { if (age > o.dl) { o.mat.opacity = Math.min(0.95, (age - o.dl) * 4); o.rm.rotation.z += 6 * dt; } });
+                bats.forEach((o, i) => {
+                    if (age > o.dl && !o.hit) {
+                        const k = Math.min(1, (age - o.dl) / 0.38); o.b.position.lerpVectors(start, end, k);
+                        o.b.position.y += Math.sin(k * Math.PI) * o.oy; o.b.position.z += Math.sin(k * Math.PI) * o.oz;
+                        if (Math.random() < 0.35) warP({ tex: 'smoke_04', col: '#12081f', pos: o.b.position, s0: 0.45, s1: 0.95, life: 0.24, op: 0.68, add: false });
+                        if (k >= 1) { o.hit = 1; o.b.visible = false; if (i === 13) warV2Climax(T, root, end, c1, c2, false); }
+                    }
+                });
+            }, () => { rings.forEach(o => { root.remove(o.rm); o.rm.geometry.dispose(); o.mat.dispose(); }); bats.forEach(o => root.remove(o.b)); bGeo.dispose(); bm1.dispose(); bm2.dispose(); });
+            return true;
+        }
+
+        /* gale_blades / ash_vortex: Tornado Alto GLSL correndo da esquerda até o alvo! */
+        const tPts = [new T.Vector2(0.35, 0), new T.Vector2(0.72, 1.15), new T.Vector2(1.35, 2.7), new T.Vector2(2.2, 4.4)];
+        const tMat = warV2EnergyMat(T, c1, c2, 5.5, 1.9, 0.88);
+        const tor = new T.Mesh(new T.LatheGeometry(tPts, 24), tMat); tor.position.set(start.x, 0, end.z); root.add(tor);
+        let prev = 0; const dur = 1.05;
+        warTw(dur, p => {
+            const dt = (p - prev) * dur; prev = p; tMat.uniforms.uT.value = p * dur;
+            tor.position.x = lerp(start.x + 0.4, end.x, p * p); tor.rotation.y += 12 * dt;
+            if (Math.random() < 0.7) warP({ tex: style === 'ash_vortex' ? 'smoke_04' : 'twirl_01', col: c1, pos: new T.Vector3(tor.position.x + (Math.random() - 0.5) * 1.3, 0.5 + Math.random() * 3.2, end.z + (Math.random() - 0.5) * 1.3), vel: new T.Vector3(0, 2.2, 0), s0: 0.68, s1: 1.7, life: 0.34, op: 0.82, add: style !== 'ash_vortex' });
+        }, () => { root.remove(tor); tor.geometry.dispose(); tMat.dispose(); warV2Climax(T, root, end, c1, c2, false); });
+        return true;
     }
     function warLegPlay(d, a) {
         const V = WARV, W = V.W, T = clTh(); if (!W || !V.sc) return false;
