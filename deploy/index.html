@@ -39732,7 +39732,7 @@ function hgParkTick() {}
         const THREE = clTh(); if (!THREE || !CL3.sc || !CL3.mC) return;
         CL3.colMeshes = {}; CL3.colLimbs = {};
         const wh = new THREE.Color(0xffffff);
-        const hiShadow = (!IPAD && !LITE && (typeof clPerfMode !== 'function' || clPerfMode() === 'alto'));
+        const hiShadow = (!IPAD && !LITE && (typeof clPerfMode !== 'function' || clPerfMode() === 'alta'));
         const mkIM = (geo, shadow) => {
             const im = new THREE.InstancedMesh(geo, CL3.mC, 32);
             im.count = 0; im.visible = false; im.frustumCulled = false; im.castShadow = !!shadow;
@@ -40791,8 +40791,8 @@ function hgParkTick() {}
 
     /* desempenho escolhido no menu de configurações: auto (liga o modo leve sozinho se travar), alta, leve, minimo */
     function clLowFlag() { try { const v = +localStorage.getItem('cestille_cl_low'); if (v && Date.now() - v < 600000) return true; localStorage.removeItem('cestille_cl_low'); } catch (e) {} return false; }   /* o modo leve automático vale só por 10 minutos (antes ficava para sempre e tirava as sombras de quem teve uma queda de quadros passageira) */
-    function clPerfMode() { try { if (!localStorage.getItem('cestille_cl_perf_r2')) { localStorage.setItem('cestille_cl_perf_r2', '1'); const o = localStorage.getItem('cestille_cl_perf'); if (o === 'minimo' || o === 'leve') localStorage.removeItem('cestille_cl_perf'); }   /* uma vez: quem ficou preso em mínimo/leve por causa do desempenho antigo volta ao automático, que agora é bem mais leve */
-            const v = localStorage.getItem('cestille_cl_perf'); return v === 'alta' || v === 'leve' || v === 'minimo' ? v : 'auto'; } catch (e) { return 'auto'; } }
+    function clPerfMode() { try { if (!localStorage.getItem('cestille_cl_perf_r3')) { localStorage.setItem('cestille_cl_perf_r3', '1'); localStorage.removeItem('cestille_cl_low'); const o = localStorage.getItem('cestille_cl_perf'); if (o === 'auto' || o === 'leve' || o === 'minimo') localStorage.removeItem('cestille_cl_perf'); }   /* 2026-11-22: modo Normal (qualidade completa) agora é o padrão */
+            const v = localStorage.getItem('cestille_cl_perf'); return v === 'alta' || v === 'auto' || v === 'leve' || v === 'minimo' ? v : 'alta'; } catch (e) { return 'alta'; } }
     function clPerfRatio() { if (IPAD) return 1; const m = clPerfMode(), d = window.devicePixelRatio || 1; return m === 'minimo' ? Math.min(d, 0.7) : m === 'leve' ? Math.min(d, 0.9) : Math.min(d, LITE ? 1 : m === 'alta' ? (CL_TOUCH() ? 2 : 2) : (CL_TOUCH() ? 1.05 : 1.5)); }   /* iPad: 1 pixel por pixel da tela; celular prioriza fluidez no automático */
     function clPerfSet(m) {
         try { localStorage.setItem('cestille_cl_perf', m); if (m === 'alta' || m === 'auto') localStorage.removeItem('cestille_cl_low'); } catch (e) {}
@@ -58411,8 +58411,8 @@ return PreviewRarityAura;}
                     if (WARV.perfAvg > 0.024 && current > (WARV.perfAvg > 0.040 ? 0.7 : 0.8)) next = Math.max(WARV.perfAvg > 0.040 ? 0.7 : 0.8, current - 0.1);   /* desce até 0,7/0,8 quando o jogo está lento */
                     else if (WARV.perfAvg < 0.017 && current < pixelRatioCap - 0.01) next = Math.min(pixelRatioCap, current + 0.05);
                     if (Math.abs(next - current) > 0.01) { r.setPixelRatio(next); const w = box.clientWidth, h = box.clientHeight; r.setSize(w, h, false); }
-                    /* Segunda etapa: se mesmo com a resolução baixa o jogo continua lento, reduz os efeitos sozinho (o botão ✨ continua valendo) */
-                    if (WARV.perfAvg > 0.030 && r.getPixelRatio() <= 0.85 && !WARV.reducedFx && !WARV._autoFx) {
+                    /* Segunda etapa: só reduz efeitos automaticamente fora do modo Normal ('alta') */
+                    if ((typeof clPerfMode === 'function' && clPerfMode() !== 'alta') && WARV.perfAvg > 0.030 && r.getPixelRatio() <= 0.85 && !WARV.reducedFx && !WARV._autoFx) {
                         WARV._autoFx = 1; WARV.reducedFx = true; box.classList.add('fx-reduced');
                         const fb = box.querySelector('[data-wf="effects"]'); if (fb) { fb.textContent = '◌'; fb.setAttribute('aria-pressed', 'true'); }
                         try { warMsg('Efeitos reduzidos para manter a fluidez. Toque em ✨ para religar.'); } catch (er) {}
@@ -61449,7 +61449,7 @@ return PreviewRarityAura;}
         return h;
     }
     function clCfgPaint(n, msg) {
-        const cur = clPerfMode(), opts = [['auto', 'Automático', 'Liga o modo leve sozinho se a colônia travar. É o padrão.'], ['alta', 'Qualidade alta', 'Sombras, brilho e criaturas completos. Pode pesar em aparelhos fracos.'], ['leve', 'Leve', 'Sem sombras e sem brilho extra, menos criaturas. Bem mais fluido.'], ['minimo', 'Mais leve possível', 'Leve, mais imagem em resolução menor e no máximo 30 quadros por segundo. Para travar o mínimo.']];
+        const cur = clPerfMode(), opts = [['alta', 'Normal (Qualidade completa)', 'Sombras, brilho e efeitos completos. É o padrão.'], ['auto', 'Automático', 'Liga o modo leve sozinho se a colônia travar.'], ['leve', 'Leve', 'Sem sombras e sem brilho extra, menos criaturas. Bem mais fluido.'], ['minimo', 'Mais leve possível', 'Leve, mais imagem em resolução menor e no máximo 30 quadros por segundo. Para travar o mínimo.']];
         const sd = window.ruaSound; let som = '';
         if (sd) { const c = sd.cfg, sl = (k, lb) => '<label class="cf-sl"><span>' + lb + '</span><input type="range" min="0" max="1" step="0.05" data-sk="' + k + '" value="' + (+c[k] || 0) + '"><em>' + Math.round((+c[k] || 0) * 100) + '%</em></label>'; som = '<section class="cf-sec"><h4>Som</h4><button type="button" class="cf-opt' + (c.on ? ' on' : '') + '" data-sk-on="1"><i class="ph-bold ' + (c.on ? 'ph-speaker-high' : 'ph-speaker-slash') + '"></i> ' + (c.on ? 'Som ligado' : 'Som desligado: toque para ligar') + '</button>' + (c.on ? sl('master', 'Volume geral') + sl('amb', 'Ambiente') + sl('fx', 'Efeitos') : '') + '</section>'; }
         const fps = clFpsOn();
@@ -64853,7 +64853,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-092909';
+    const BUILD = '20261122-094109';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };

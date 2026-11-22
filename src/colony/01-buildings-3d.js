@@ -2289,7 +2289,7 @@
         const THREE = clTh(); if (!THREE || !CL3.sc || !CL3.mC) return;
         CL3.colMeshes = {}; CL3.colLimbs = {};
         const wh = new THREE.Color(0xffffff);
-        const hiShadow = (!IPAD && !LITE && (typeof clPerfMode !== 'function' || clPerfMode() === 'alto'));
+        const hiShadow = (!IPAD && !LITE && (typeof clPerfMode !== 'function' || clPerfMode() === 'alta'));
         const mkIM = (geo, shadow) => {
             const im = new THREE.InstancedMesh(geo, CL3.mC, 32);
             im.count = 0; im.visible = false; im.frustumCulled = false; im.castShadow = !!shadow;
@@ -3348,8 +3348,8 @@
 
     /* desempenho escolhido no menu de configurações: auto (liga o modo leve sozinho se travar), alta, leve, minimo */
     function clLowFlag() { try { const v = +localStorage.getItem('cestille_cl_low'); if (v && Date.now() - v < 600000) return true; localStorage.removeItem('cestille_cl_low'); } catch (e) {} return false; }   /* o modo leve automático vale só por 10 minutos (antes ficava para sempre e tirava as sombras de quem teve uma queda de quadros passageira) */
-    function clPerfMode() { try { if (!localStorage.getItem('cestille_cl_perf_r2')) { localStorage.setItem('cestille_cl_perf_r2', '1'); const o = localStorage.getItem('cestille_cl_perf'); if (o === 'minimo' || o === 'leve') localStorage.removeItem('cestille_cl_perf'); }   /* uma vez: quem ficou preso em mínimo/leve por causa do desempenho antigo volta ao automático, que agora é bem mais leve */
-            const v = localStorage.getItem('cestille_cl_perf'); return v === 'alta' || v === 'leve' || v === 'minimo' ? v : 'auto'; } catch (e) { return 'auto'; } }
+    function clPerfMode() { try { if (!localStorage.getItem('cestille_cl_perf_r3')) { localStorage.setItem('cestille_cl_perf_r3', '1'); localStorage.removeItem('cestille_cl_low'); const o = localStorage.getItem('cestille_cl_perf'); if (o === 'auto' || o === 'leve' || o === 'minimo') localStorage.removeItem('cestille_cl_perf'); }   /* 2026-11-22: modo Normal (qualidade completa) agora é o padrão */
+            const v = localStorage.getItem('cestille_cl_perf'); return v === 'alta' || v === 'auto' || v === 'leve' || v === 'minimo' ? v : 'alta'; } catch (e) { return 'alta'; } }
     function clPerfRatio() { if (IPAD) return 1; const m = clPerfMode(), d = window.devicePixelRatio || 1; return m === 'minimo' ? Math.min(d, 0.7) : m === 'leve' ? Math.min(d, 0.9) : Math.min(d, LITE ? 1 : m === 'alta' ? (CL_TOUCH() ? 2 : 2) : (CL_TOUCH() ? 1.05 : 1.5)); }   /* iPad: 1 pixel por pixel da tela; celular prioriza fluidez no automático */
     function clPerfSet(m) {
         try { localStorage.setItem('cestille_cl_perf', m); if (m === 'alta' || m === 'auto') localStorage.removeItem('cestille_cl_low'); } catch (e) {}

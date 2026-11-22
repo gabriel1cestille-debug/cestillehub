@@ -4818,8 +4818,8 @@ return PreviewRarityAura;}
                     if (WARV.perfAvg > 0.024 && current > (WARV.perfAvg > 0.040 ? 0.7 : 0.8)) next = Math.max(WARV.perfAvg > 0.040 ? 0.7 : 0.8, current - 0.1);   /* desce até 0,7/0,8 quando o jogo está lento */
                     else if (WARV.perfAvg < 0.017 && current < pixelRatioCap - 0.01) next = Math.min(pixelRatioCap, current + 0.05);
                     if (Math.abs(next - current) > 0.01) { r.setPixelRatio(next); const w = box.clientWidth, h = box.clientHeight; r.setSize(w, h, false); }
-                    /* Segunda etapa: se mesmo com a resolução baixa o jogo continua lento, reduz os efeitos sozinho (o botão ✨ continua valendo) */
-                    if (WARV.perfAvg > 0.030 && r.getPixelRatio() <= 0.85 && !WARV.reducedFx && !WARV._autoFx) {
+                    /* Segunda etapa: só reduz efeitos automaticamente fora do modo Normal ('alta') */
+                    if ((typeof clPerfMode === 'function' && clPerfMode() !== 'alta') && WARV.perfAvg > 0.030 && r.getPixelRatio() <= 0.85 && !WARV.reducedFx && !WARV._autoFx) {
                         WARV._autoFx = 1; WARV.reducedFx = true; box.classList.add('fx-reduced');
                         const fb = box.querySelector('[data-wf="effects"]'); if (fb) { fb.textContent = '◌'; fb.setAttribute('aria-pressed', 'true'); }
                         try { warMsg('Efeitos reduzidos para manter a fluidez. Toque em ✨ para religar.'); } catch (er) {}
@@ -7856,7 +7856,7 @@ return PreviewRarityAura;}
         return h;
     }
     function clCfgPaint(n, msg) {
-        const cur = clPerfMode(), opts = [['auto', 'Automático', 'Liga o modo leve sozinho se a colônia travar. É o padrão.'], ['alta', 'Qualidade alta', 'Sombras, brilho e criaturas completos. Pode pesar em aparelhos fracos.'], ['leve', 'Leve', 'Sem sombras e sem brilho extra, menos criaturas. Bem mais fluido.'], ['minimo', 'Mais leve possível', 'Leve, mais imagem em resolução menor e no máximo 30 quadros por segundo. Para travar o mínimo.']];
+        const cur = clPerfMode(), opts = [['alta', 'Normal (Qualidade completa)', 'Sombras, brilho e efeitos completos. É o padrão.'], ['auto', 'Automático', 'Liga o modo leve sozinho se a colônia travar.'], ['leve', 'Leve', 'Sem sombras e sem brilho extra, menos criaturas. Bem mais fluido.'], ['minimo', 'Mais leve possível', 'Leve, mais imagem em resolução menor e no máximo 30 quadros por segundo. Para travar o mínimo.']];
         const sd = window.ruaSound; let som = '';
         if (sd) { const c = sd.cfg, sl = (k, lb) => '<label class="cf-sl"><span>' + lb + '</span><input type="range" min="0" max="1" step="0.05" data-sk="' + k + '" value="' + (+c[k] || 0) + '"><em>' + Math.round((+c[k] || 0) * 100) + '%</em></label>'; som = '<section class="cf-sec"><h4>Som</h4><button type="button" class="cf-opt' + (c.on ? ' on' : '') + '" data-sk-on="1"><i class="ph-bold ' + (c.on ? 'ph-speaker-high' : 'ph-speaker-slash') + '"></i> ' + (c.on ? 'Som ligado' : 'Som desligado: toque para ligar') + '</button>' + (c.on ? sl('master', 'Volume geral') + sl('amb', 'Ambiente') + sl('fx', 'Efeitos') : '') + '</section>'; }
         const fps = clFpsOn();
