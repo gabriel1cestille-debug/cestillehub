@@ -1368,7 +1368,7 @@
     }
     function clEnsureCardCss() {
         if (document.getElementById('cf-cards-css')) return;
-        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite46'; document.head.appendChild(l);
+        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite47'; document.head.appendChild(l);
     }
     function clArenaCardHTML(sp, lv, star, imgHtml, opts) {
         clEnsureCardCss(); opts = opts || {};
@@ -3618,7 +3618,7 @@
             const V = WARV, b = V.box, small = window.matchMedia && matchMedia('(pointer: coarse)').matches;
             if (!b || V.nums >= (small ? 14 : 26)) return;
             const now = V.t;
-            if (!isCrit && e._damageLabel && e._damageLabel.isConnected && !e._damageLabel.classList.contains('crit-hit') && now - e._damageAt < 0.16) {
+            if (!isCrit && e._damageLabel && e._damageLabel.isConnected && !e._damageLabel.classList.contains('crit-hit') && now - e._damageAt < 0.24) {
                 e._damageSum += damage;
                 const valEl = e._damageLabel.querySelector('.an-val');
                 if (valEl) valEl.textContent = Math.round(e._damageSum).toLocaleString('pt-BR');
@@ -3631,13 +3631,14 @@
             const solidCol = isCrit ? '#fde047' : (strong ? (elCols[el] || '#e879f9') : '#ffffff');
             const node = document.createElement('div');
             node.className = 'wf-num enemy-hit anime' + (isCrit ? ' crit-hit' : (strong ? ' big' : ''));
-            node.style.left = x + 'px'; node.style.top = (y - (isCrit ? 16 : 0)) + 'px';
-            node.style.setProperty('--dx', ((V.nums % 2 ? 1 : -1) * (12 + (V.nums % 4) * 7)) + 'px');
+            const stgY = (V.nums % 3) * 14;
+            node.style.left = x + 'px'; node.style.top = (y - stgY - (isCrit ? 14 : 0)) + 'px';
+            node.style.setProperty('--dx', ((V.nums % 2 ? 1 : -1) * (10 + (V.nums % 3) * 8)) + 'px');
             node.style.setProperty('--an-c', solidCol);
             const numTxt = Math.round(damage).toLocaleString('pt-BR');
             node.innerHTML = isCrit
                 ? '<span class="an-tag">CRÍTICO</span><span class="an-val"><i class="an-star">✦</i>' + numTxt + '</span>'
-                : ((strong ? '<span class="an-tag">SUPREMO</span>' : '') + '<span class="an-val">' + numTxt + '</span>');
+                : '<span class="an-val">' + numTxt + '</span>';
             b.appendChild(node);
             V.nums++;
             if (!isCrit) { e._damageSum = damage; e._damageAt = now; e._damageLabel = node; }
@@ -4421,7 +4422,7 @@ return PreviewRarityAura;}
         if (!el || !el.isConnected) { el = document.createElement('div'); el.className = cls; el.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:24;opacity:0;' + css; V.box.appendChild(el); }
         return el;
     }
-    function warLegFlash(col, strong) { try { const el = warLegOverlay('wf-legflash', 'mix-blend-mode:screen'); if (!el) return; el.style.background = col; el.style.transition = 'none'; el.style.opacity = strong ? '0.5' : '0.22'; void el.offsetWidth; el.style.transition = 'opacity .26s ease-out'; el.style.opacity = '0'; } catch (er) {} }
+    function warLegFlash(col, strong) { try { const el = warLegOverlay('wf-legflash', 'mix-blend-mode:screen'); if (!el) return; el.style.background = col; el.style.transition = 'none'; el.style.opacity = strong ? '0.20' : '0.12'; void el.offsetWidth; el.style.transition = 'opacity .24s ease-out'; el.style.opacity = '0'; } catch (er) {} }
     function warLegDim(dur, hex) { return; /* pedido do Gabriel: a tela NÃO escurece nos especiais */ try { const el = warLegOverlay('wf-legdim', 'transition:opacity .25s ease'); if (!el) return; el.style.background = hex || '#03020c'; el.style.opacity = '0.4'; clearTimeout(el._t); el._t = setTimeout(() => { el.style.opacity = '0'; }, dur * 1000); } catch (er) {} }
     /* ---------- Especiais 3D V2 (TODOS os 31 dragões!) com shaders GLSL & alpha-safe smoke ---------- */
     const WAR_V2_STYLE = {
@@ -4439,22 +4440,22 @@ return PreviewRarityAura;}
     };
     const WAR_V2_SP = new Set(['vigia', 'eclipse', 'arquimago_astral', 'demonio_cinzas', 'colosso_obsidiana', 'morcego', 'hamster', 'nimbo', 'sereia_glacial', 'mare', ...Object.keys(WAR_V2_STYLE)]);
     function warV2EnergyMat(T, c1, c2, spd, hdr, op) {
-        const u = { uT: { value: 0 }, uC1: { value: new T.Color(c1) }, uC2: { value: new T.Color(c2 || '#ffffff') }, uSpd: { value: spd || 3 }, uHdr: { value: hdr || 1.6 }, uOp: { value: op === undefined ? 0.95 : op } };
+        const u = { uT: { value: 0 }, uC1: { value: new T.Color(c1) }, uC2: { value: new T.Color(c2 || '#ffffff') }, uSpd: { value: spd || 3 }, uHdr: { value: Math.min(1.45, (hdr || 1.4) * 0.72) }, uOp: { value: (op === undefined ? 0.85 : op) * 0.76 } };
         return new T.ShaderMaterial({
             uniforms: u, transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
             vertexShader: 'varying vec3 vN,vV; varying vec2 vUv; void main(){ vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.0); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
-            fragmentShader: 'uniform float uT,uSpd,uHdr,uOp; uniform vec3 uC1,uC2; varying vec3 vN,vV; varying vec2 vUv; float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);} float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<3;i++){v+=a*n(p);p*=2.05;a*=0.5;}return v;} void main(){ float t=uT*uSpd; float e=clamp(fbm(vUv*5.0+vec2(t*0.4,-t*0.9))*0.75+fbm(vUv*9.0-vec2(t*0.7,t*0.5))*0.45+pow(1.0-abs(dot(normalize(vN),normalize(vV))),2.2)*1.05,0.0,1.6); vec3 col=mix(uC1,uC2,smoothstep(0.35,1.05,e))+vec3(1.0)*smoothstep(1.05,1.5,e)*0.75; gl_FragColor=vec4(col*uHdr,clamp((0.35+e*0.72)*uOp,0.0,1.0)); }'
+            fragmentShader: 'uniform float uT,uSpd,uHdr,uOp; uniform vec3 uC1,uC2; varying vec3 vN,vV; varying vec2 vUv; float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);} float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<3;i++){v+=a*n(p);p*=2.05;a*=0.5;}return v;} void main(){ float t=uT*uSpd; float e=clamp(fbm(vUv*5.0+vec2(t*0.4,-t*0.9))*0.75+fbm(vUv*9.0-vec2(t*0.7,t*0.5))*0.45+pow(1.0-abs(dot(normalize(vN),normalize(vV))),2.2)*1.05,0.0,1.6); vec3 col=mix(uC1,uC2,smoothstep(0.35,1.05,e))+vec3(1.0)*smoothstep(1.05,1.5,e)*0.55; gl_FragColor=vec4(col*uHdr,clamp((0.28+e*0.65)*uOp,0.0,0.88)); }'
         });
     }
     function warV2Dome(T, root, pos, c1, c2, maxS, dur) {
-        const u = { uT: { value: 0 }, uC1: { value: new T.Color(c1) }, uC2: { value: new T.Color(c2 || '#ffffff') }, uOp: { value: 1.0 } };
+        const u = { uT: { value: 0 }, uC1: { value: new T.Color(c1) }, uC2: { value: new T.Color(c2 || '#ffffff') }, uOp: { value: 0.85 } };
         const mat = new T.ShaderMaterial({
             uniforms: u, transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
             vertexShader: 'varying vec3 vN,vV; varying vec2 vUv; void main(){ vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.0); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
-            fragmentShader: 'uniform float uT,uOp; uniform vec3 uC1,uC2; varying vec3 vN,vV; varying vec2 vUv; void main(){ float f=pow(1.0-abs(dot(normalize(vN),normalize(vV))),2.3); float b=0.5+0.5*sin(vUv.y*26.0-uT*16.0); gl_FragColor=vec4(mix(uC1,uC2,f*0.8+b*0.2)*1.8,clamp((f*0.95+b*0.14)*uOp,0.0,1.0)); }'
+            fragmentShader: 'uniform float uT,uOp; uniform vec3 uC1,uC2; varying vec3 vN,vV; varying vec2 vUv; void main(){ float f=pow(1.0-abs(dot(normalize(vN),normalize(vV))),2.3); float b=0.5+0.5*sin(vUv.y*26.0-uT*16.0); gl_FragColor=vec4(mix(uC1,uC2,f*0.8+b*0.2)*1.35,clamp((f*0.85+b*0.12)*uOp,0.0,0.85)); }'
         });
-        const m = new T.Mesh(new T.SphereGeometry(0.6, 22, 16), mat); m.position.copy(pos); root.add(m);
-        warTw(dur || 0.55, p => { u.uT.value = p * (dur || 0.55); const e = 1 - Math.pow(1 - p, 3); m.scale.setScalar(0.5 + e * (maxS || 4.0)); u.uOp.value = Math.max(0, 1 - Math.pow(p, 1.4)); }, () => { root.remove(m); m.geometry.dispose(); mat.dispose(); });
+        const m = new T.Mesh(new T.SphereGeometry(0.42, 20, 14), mat); m.position.copy(pos); root.add(m);
+        warTw(dur || 0.48, p => { u.uT.value = p * (dur || 0.48); const e = 1 - Math.pow(1 - p, 3); m.scale.setScalar(0.45 + e * ((maxS || 3.2) * 0.58)); u.uOp.value = Math.max(0, 0.82 * (1 - Math.pow(p, 1.4))); }, () => { root.remove(m); m.geometry.dispose(); mat.dispose(); });
     }
     function warV2Bolt(T, root, a, b, segs, amp, c1, c2, rad, dur) {
         const g = new T.Group(), pts = [];
@@ -4470,24 +4471,24 @@ return PreviewRarityAura;}
         warTw(dur || 0.2, p => { m1.opacity = 1 - p; m2.opacity = 0.72 * (1 - p); }, () => { root.remove(g); g1.dispose(); g2.dispose(); m1.dispose(); m2.dispose(); });
     }
     function warV2Mandala(T, root, basePos, tex, col, sz, dur, spin) {
-        const geo = new T.PlaneGeometry(sz, sz);
+        const geo = new T.PlaneGeometry(sz * 0.56, sz * 0.56);
         const mat = new T.MeshBasicMaterial({ map: warAlphaFxTex(tex), color: col, transparent: true, opacity: 0, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending });
         const m = new T.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(basePos.x, 0.09, basePos.z); root.add(m);
         let prev = 0;
-        warTw(dur, p => { const dt = (p - prev) * dur; prev = p; m.rotation.z += (spin || 2) * dt; mat.opacity = p < 0.18 ? (p / 0.18) * 0.92 : (p > 0.78 ? ((1 - p) / 0.22) * 0.92 : 0.92); m.scale.setScalar(0.55 + Math.min(1, p * 4) * 0.5); }, () => { root.remove(m); geo.dispose(); mat.dispose(); });
+        warTw(dur, p => { const dt = (p - prev) * dur; prev = p; m.rotation.z += (spin || 2) * dt; mat.opacity = p < 0.18 ? (p / 0.18) * 0.65 : (p > 0.78 ? ((1 - p) / 0.22) * 0.65 : 0.65); m.scale.setScalar(0.55 + Math.min(1, p * 4) * 0.48); }, () => { root.remove(m); geo.dispose(); mat.dispose(); });
     }
     function warV2Climax(T, root, pos, c1, c2, noBoom) {
         const V = WARV;
-        V.shake = Math.max(V.shake || 0, 0.78);
-        V.hitStop = Math.max(V.hitStop || 0, 0.055);
-        warLegFlash(c1, true);
+        V.shake = Math.max(V.shake || 0, 0.55);
+        V.hitStop = Math.max(V.hitStop || 0, 0.045);
+        warLegFlash(c1, false);
         if (!noBoom) warStudioPlay('boom_impact_03', 0.72, 0.85, 0.095);
-        warV2Dome(T, root, pos, c1, c2, 4.6, 0.58);
-        warP({ tex: 'flare_01', col: '#ffffff', pos: pos.clone().setY(pos.y + 0.3), s0: 1.4, s1: 7.2, life: 0.34, op: 1.0 });
-        warP({ tex: 'circle_05', col: c1, pos: pos.clone().setY(pos.y + 0.2), s0: 1.0, s1: 6.4, life: 0.48, op: 0.92 });
-        for (let i = 0; i < 16; i++) {
-            const a = Math.random() * Math.PI * 2, spd = 2.6 + Math.random() * 5.8;
-            warP({ tex: i % 2 ? 'spark_01' : 'star_02', col: i % 3 ? c1 : c2, pos: pos.clone(), vel: new T.Vector3(Math.cos(a) * spd, 2.2 + Math.random() * 5.2, Math.sin(a) * spd), grav: 9, s0: 0.55, s1: 0.1, life: 0.45 + Math.random() * 0.25, op: 0.98 });
+        warV2Dome(T, root, pos, c1, c2, 3.4, 0.48);
+        warP({ tex: 'flare_01', col: '#ffffff', pos: pos.clone().setY(pos.y + 0.3), s0: 0.9, s1: 3.4, life: 0.28, op: 0.78 });
+        warP({ tex: 'circle_05', col: c1, pos: pos.clone().setY(pos.y + 0.2), s0: 0.7, s1: 3.2, life: 0.42, op: 0.75 });
+        for (let i = 0; i < 12; i++) {
+            const a = Math.random() * Math.PI * 2, spd = 2.2 + Math.random() * 4.4;
+            warP({ tex: i % 2 ? 'spark_01' : 'star_02', col: i % 3 ? c1 : c2, pos: pos.clone(), vel: new T.Vector3(Math.cos(a) * spd, 1.8 + Math.random() * 4.0, Math.sin(a) * spd), grav: 9, s0: 0.45, s1: 0.08, life: 0.42 + Math.random() * 0.2, op: 0.9 });
         }
     }
     function warLegV2Play(T, root, id, start, end) {
@@ -4781,19 +4782,19 @@ return PreviewRarityAura;}
         }
 
         if (id === 'sereia_glacial' || id === 'mare') {
-            const wGrp = new T.Group(), wMat = warV2EnergyMat(T, '#0284c7', '#e0f2fe', 5.2, 1.8, 0.92), fMat = warV2EnergyMat(T, '#bae6fd', '#ffffff', 7.0, 2.0, 0.96);
-            const crest = new T.Mesh(new T.TorusGeometry(2.0, 0.68, 14, 30, Math.PI * 0.78), wMat); crest.rotation.z = -0.35; crest.scale.set(1.0, 1.3, 2.0);
-            const foam = new T.Mesh(new T.TorusGeometry(2.05, 0.32, 10, 26, Math.PI * 0.45), fMat); foam.rotation.z = 0.25; foam.scale.set(1.0, 1.3, 2.05); foam.position.set(0.32, 0.42, 0);
-            wGrp.add(crest, foam); wGrp.position.set(start.x - 0.5, 1.2, end.z); root.add(wGrp);
-            let cr = 0; const dur = 1.24;
+            const wGrp = new T.Group(), wMat = warV2EnergyMat(T, '#0284c7', '#e0f2fe', 5.2, 1.5, 0.82), fMat = warV2EnergyMat(T, '#bae6fd', '#ffffff', 7.0, 1.6, 0.86);
+            const crest = new T.Mesh(new T.TorusGeometry(0.95, 0.28, 14, 28, Math.PI * 0.78), wMat); crest.rotation.z = -0.35; crest.scale.set(0.85, 1.0, 0.95);
+            const foam = new T.Mesh(new T.TorusGeometry(0.98, 0.14, 10, 24, Math.PI * 0.45), fMat); foam.rotation.z = 0.25; foam.scale.set(0.85, 1.0, 0.98); foam.position.set(0.18, 0.22, 0);
+            wGrp.add(crest, foam); wGrp.position.set(start.x + 0.2, 0.75, end.z); root.add(wGrp);
+            let cr = 0; const dur = 1.15;
             warTw(dur, p => {
                 wMat.uniforms.uT.value = fMat.uniforms.uT.value = p * dur;
-                const wx = lerp(start.x - 0.4, end.x + 0.3, Math.min(1, p / 0.86));
-                wGrp.position.x = wx; wGrp.scale.setScalar(0.55 + Math.sin(Math.min(1, p) * Math.PI * 0.65) * 0.72);
-                if (!cr && Math.random() < 0.8) warP({ tex: Math.random() < 0.5 ? 'twirl_01' : 'smoke_04', col: '#e0f2fe', pos: new T.Vector3(wx + 0.5, 0.4 + Math.random() * 2.8, end.z + (Math.random() - 0.5) * 3.0), vel: new T.Vector3(1.6, 1.8 + Math.random() * 2.2, (Math.random() - 0.5) * 1.2), grav: 7, s0: 0.75, s1: 1.8, life: 0.42, op: 0.88 });
+                const wx = lerp(start.x + 0.2, end.x + 0.2, Math.min(1, p / 0.86));
+                wGrp.position.x = wx; wGrp.scale.setScalar(0.55 + Math.sin(Math.min(1, p) * Math.PI * 0.65) * 0.48);
+                if (!cr && Math.random() < 0.65) warP({ tex: Math.random() < 0.5 ? 'twirl_01' : 'smoke_04', col: '#e0f2fe', pos: new T.Vector3(wx + 0.3, 0.35 + Math.random() * 1.4, end.z + (Math.random() - 0.5) * 1.4), vel: new T.Vector3(1.2, 1.2 + Math.random() * 1.5, (Math.random() - 0.5) * 0.8), grav: 7, s0: 0.48, s1: 1.15, life: 0.36, op: 0.78 });
                 if (!cr && p >= 0.84) {
                     cr = 1; wGrp.visible = false;
-                    for (let m = 0; m < 24; m++) { const a = Math.random() * 6.283, spd = 2.0 + Math.random() * 4.8; warP({ tex: m % 2 ? 'twirl_01' : 'smoke_04', col: '#bae6fd', pos: new T.Vector3(end.x + (Math.random() - 0.5) * 1.4, 0.4, end.z + (Math.random() - 0.5) * 2.0), vel: new T.Vector3(Math.cos(a) * spd, 4.5 + Math.random() * 5.2, Math.sin(a) * spd), grav: 10, s0: 0.85, s1: 2.2, life: 0.65, op: 0.92 }); }
+                    for (let m = 0; m < 16; m++) { const a = Math.random() * 6.283, spd = 1.6 + Math.random() * 3.6; warP({ tex: m % 2 ? 'twirl_01' : 'smoke_04', col: '#bae6fd', pos: new T.Vector3(end.x + (Math.random() - 0.5) * 1.0, 0.35, end.z + (Math.random() - 0.5) * 1.2), vel: new T.Vector3(Math.cos(a) * spd, 3.2 + Math.random() * 3.8, Math.sin(a) * spd), grav: 10, s0: 0.55, s1: 1.4, life: 0.55, op: 0.84 }); }
                     warV2Climax(T, root, end, '#38bdf8', '#e0f2fe', false);
                 }
             }, () => { root.remove(wGrp); crest.geometry.dispose(); foam.geometry.dispose(); wMat.dispose(); fMat.dispose(); });
@@ -7101,15 +7102,15 @@ return PreviewRarityAura;}
             + '@keyframes wfbn{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.05)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.04) translateY(-10px)}}'
             + '.wf-msg{position:absolute;left:50%;top:max(8px,env(safe-area-inset-top));transform:translateX(-50%);padding:4px 13px;border-radius:999px;background:rgba(10,7,16,.84);border:1px solid rgba(218,174,86,.52);color:#fff4dc;font-weight:800;font-size:11.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:12;box-shadow:0 4px 14px rgba(0,0,0,.7);white-space:nowrap;max-width:80vw;overflow:hidden;text-overflow:ellipsis}.wf-msg.on{opacity:1}'
             + '.wf-num{position:absolute;color:#fff;font-weight:900;font-size:24px;text-shadow:0 2px 4px #000,0 0 10px #000;pointer-events:none;animation:wfnum 1.15s cubic-bezier(.16,1,.3,1) forwards;z-index:20;transform:translate(-50%,-50%);white-space:nowrap}'
-            + '.wf-num.enemy-hit.anime{display:flex;flex-direction:column;align-items:center;font-family:\'Lilita One\',\'Barlow\',system-ui,sans-serif;font-size:48px;font-weight:900;line-height:1;filter:none}'
-            + '.wf-num.enemy-hit.anime .an-val{position:relative;z-index:2;display:inline-flex;align-items:center;gap:4px;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:var(--an-c,#ffffff)!important;-webkit-text-stroke:0!important;letter-spacing:.01em;text-shadow:-3px -3px 0 #120806,3px -3px 0 #120806,-3px 3px 0 #120806,3px 3px 0 #120806,0 5px 0 #090404,0 7px 14px rgba(0,0,0,.92)}'
-            + '.wf-num.enemy-hit.anime.big{font-size:62px;z-index:25}'
-            + '.wf-num.enemy-hit.anime.crit-hit{font-size:84px;z-index:29;animation:wfCritSlam 1.3s cubic-bezier(.14,1.2,.26,1) forwards}'
-            + '.wf-num.enemy-hit.anime.crit-hit .an-val{color:#fffef0!important;font-style:italic;letter-spacing:-.01em;text-shadow:-4px -4px 0 #1c0401,4px -4px 0 #1c0401,-4px 4px 0 #1c0401,4px 4px 0 #1c0401,0 7px 0 #7c1306,0 0 24px #ff5500,0 0 42px rgba(251,191,36,.85)}'
-            + '.wf-num.enemy-hit.anime.crit-hit .an-star{font-style:normal;font-size:.64em;color:#fde047;text-shadow:-3px -3px 0 #1c0401,3px -3px 0 #1c0401,-3px 3px 0 #1c0401,3px 3px 0 #1c0401,0 0 18px #ff6a00;margin-right:3px}'
-            + '@keyframes wfCritSlam{0%{opacity:0;transform:translate(-50%,-10%) scale(2.1) rotate(-8deg)}14%{opacity:1;transform:translate(-50%,-55%) scale(1.18) rotate(-3deg)}28%{transform:translate(-50%,-72%) scale(1.04) rotate(-2deg)}76%{opacity:1;transform:translate(-50%,-125%) scale(1.02) rotate(-1deg)}100%{opacity:0;transform:translate(-50%,-175%) scale(.92) rotate(0deg)}}'
+            + '.wf-num.enemy-hit.anime{display:flex;flex-direction:column;align-items:center;font-family:\'Barlow\',system-ui,sans-serif;font-size:22px;font-weight:900;line-height:1;filter:none;font-variant-numeric:tabular-nums}'
+            + '.wf-num.enemy-hit.anime .an-val{position:relative;z-index:2;display:inline-flex;align-items:center;gap:3px;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:var(--an-c,#ffffff)!important;-webkit-text-stroke:0!important;letter-spacing:.01em;text-shadow:-1.5px -1.5px 0 #09060f,1.5px -1.5px 0 #09060f,-1.5px 1.5px 0 #09060f,1.5px 1.5px 0 #09060f,0 3px 8px rgba(0,0,0,.92)}'
+            + '.wf-num.enemy-hit.anime.big{font-size:30px;z-index:25}'
+            + '.wf-num.enemy-hit.anime.crit-hit{font-size:34px;z-index:29;animation:wfCritSlam 1.15s cubic-bezier(.14,1.2,.26,1) forwards}'
+            + '.wf-num.enemy-hit.anime.crit-hit .an-val{color:#fde047!important;font-style:normal;letter-spacing:-.01em;text-shadow:-2px -2px 0 #1c0802,2px -2px 0 #1c0802,-2px 2px 0 #1c0802,2px 2px 0 #1c0802,0 4px 10px rgba(0,0,0,.95),0 0 14px rgba(251,191,36,.75)}'
+            + '.wf-num.enemy-hit.anime.crit-hit .an-star{font-style:normal;font-size:.7em;color:#fef08a;text-shadow:-1.5px -1.5px 0 #1c0802,1.5px -1.5px 0 #1c0802,0 0 10px #f59e0b;margin-right:2px}'
+            + '@keyframes wfCritSlam{0%{opacity:0;transform:translate(-50%,-10%) scale(1.65)}14%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}28%{transform:translate(-50%,-68%) scale(1)}76%{opacity:1;transform:translate(-50%,-115%) scale(1)}100%{opacity:0;transform:translate(-50%,-155%) scale(.92)}}'
             + '.wf-num.enemy-hit.anime.big:before{display:none!important}'
-            + '.wf-num.enemy-hit.anime .an-tag{display:inline-block;padding:2px 8px;margin-bottom:2px;border-radius:6px;background:#b91c1c;border:1.5px solid #fde047;color:#fffbeb;font-family:\'Barlow\',system-ui,sans-serif;font-size:11px;font-weight:900;letter-spacing:.12em;box-shadow:0 3px 8px rgba(0,0,0,.8)}'
+            + '.wf-num.enemy-hit.anime .an-tag{display:inline-block;padding:1px 6px;margin-bottom:2px;border-radius:5px;background:rgba(153,27,27,.92);border:1px solid #fde047;color:#fffbeb;font-family:\'Barlow\',system-ui,sans-serif;font-size:9px;font-weight:900;letter-spacing:.10em;box-shadow:0 2px 6px rgba(0,0,0,.8)}'
             + '.wf-num.wf-combo-pill{display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:6px 14px;background:radial-gradient(ellipse 75% 65% at 50% 50%,color-mix(in srgb,var(--cc,#fde047) 42%,transparent) 0%,rgba(6,4,12,.55) 52%,transparent 80%);border:0;border-radius:0;box-shadow:none;z-index:28;animation:wfComboPop 1.65s cubic-bezier(.16,1,.3,1) forwards}'
             + '.wf-num.wf-combo-pill .cp-pair{font-size:20px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.95)) drop-shadow(0 0 12px var(--cc,#fde047))}'
             + '.wf-num.wf-combo-pill b{font-family:Georgia,\'Times New Roman\',serif;font-size:17px;color:#fff8e6;font-weight:900;letter-spacing:.10em;text-shadow:-2px -2px 0 #09050e,2px -2px 0 #09050e,-2px 2px 0 #09050e,2px 2px 0 #09050e,0 0 16px var(--cc,#fde047)}'
