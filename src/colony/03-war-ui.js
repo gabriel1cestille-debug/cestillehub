@@ -1454,6 +1454,7 @@
             const b = ev.target.closest('[data-dg]'); if (!b) return; ev.stopPropagation(); const k = b.dataset.dg;
             try {
                 if (k === 'back') { clArenaDragonsClose(); clArenaHome(); return; }
+                if (k === 'guide') { try { warComboGuideOpen(); } catch (er) {} return; }
                 if (k === 'pick') { ZOO.adSel = +b.dataset.id; ZOO.adMsg = ''; ZOO.adFuseArm = 0; }
                 else if (k === 'only') { ZOO.adOnly = !ZOO.adOnly; ZOO.adFuseArm = 0; }
                 else if (k === 'rk') { ZOO.dgRk = +b.dataset.rk; ZOO.adFuseArm = 0; }
@@ -1558,7 +1559,8 @@
             const roleObj = warRole(pk), roleN = roleObj.n, k1 = (pk && pk.kinds && pk.kinds[0]) || 'bolt', rngN = (WAR_KD[k1] && WAR_KD[k1].rg) ? WAR_KD[k1].rg : 6;
             const elPass = { terra: '🌿 +35% Vida máx.', agua: '💧 Lentidão', cristal: '💎 Perfura 2 alvos', estelar: '✨ +15% Ataque', fogo: '🔥 Queimadura' }[sp.el] || '';
             const stars = zStar(a) > 0 ? (' · ' + '★'.repeat(Math.min(5, zStar(a)))) : '';
-            const hp0 = Math.round(warMaxHp(pk)), ak0 = Math.round(warAttack(pk));
+            const hp0 = Math.round(warMaxHp(pk)), ak0 = Math.round(warAttack(pk)), cost0 = warCardCost(pk);
+            const affList = warAffRunesFor(sp.el);
             let nextDelta = '';
             if (adult && !max) {
                 const pkN = warMakePick(Object.assign({}, a, { lv: L + 1 }));
@@ -1575,12 +1577,16 @@
                 + '<small style="color:' + rk.col + '">✦ ' + esc(rk.n.toUpperCase()) + ' · NV. ' + L + '/' + ZMAXLV + stars + '</small>'
                 + '<h3>' + esc(sp.n) + '</h3>'
                 + '<p>' + roleObj.ic + ' <b>' + esc(roleN) + '</b> · ' + elPass + ' · <span>Bás: ' + esc(mv[1][0]) + '</span> · <span>Sup: ' + esc(mv[2][0]) + '</span></p>'
+                + '<div style="margin-top:5px;padding:5px 10px;border-radius:10px;background:rgba(10,7,18,.72);border:1px solid rgba(218,174,86,.32);font-size:11.5px;color:#e7dcc6;line-height:1.35;max-width:560px">'
+                + '<b style="color:#fde68a">' + roleObj.ic + ' ' + esc(roleN) + ':</b> ' + esc(roleObj.desc)
+                + (affList.length ? ' <span style="color:#93c5fd;font-weight:800">· ✦ Runas +25%: ' + affList.join(', ') + '</span>' : '')
+                + '</div>'
                 + '</div>'
                 + '<div class="dg-hero-mid">'
                 + '<div class="dg-lev"><div class="dg-light"></div><div class="dg-light2"></div><div class="dg-lev-art">' + clArenaImg(sp.id, 'big', { n: 1 }) + '</div></div>'
                 + '<div class="dg-runes-col" title="Runas encaixadas">' + slots.join('') + '</div>'
                 + '</div>'
-                + '<div class="dg-stats-strip"><span>❤ <b>' + hp0 + '</b> Vida</span><span class="dg-sep">✦</span><span>⚔ <b>' + ak0 + '</b> Ataque</span><span class="dg-sep">✦</span><span>🎯 <b>' + rngN + '</b> Alcance</span>' + nextDelta + '</div>'
+                + '<div class="dg-stats-strip"><span style="color:#c4b5fd">⚡ <b>' + cost0 + '</b> Custo</span><span class="dg-sep">✦</span><span style="color:#86efac">❤ <b>' + hp0 + '</b> Vida</span><span class="dg-sep">✦</span><span style="color:#fdba74">⚔ <b>' + ak0 + '</b> Ataque</span><span class="dg-sep">✦</span><span>🎯 <b>' + rngN + '</b> Alcance</span>' + nextDelta + '</div>'
                 + reqStrip
                 + '<div class="dg-cta-row">'
                 + '<button type="button" class="dg-go" data-dg="up" data-id="' + a.id + '"' + (rdy ? '' : ' disabled') + '>' + (max ? '✦ NÍVEL MÁXIMO' : rdy ? '▲ SUBIR PARA NV. ' + (L + 1) : 'Faltam recursos') + '</button>'
@@ -1591,12 +1597,13 @@
         }
         const sortLbl = { def: '↕ Padrão', atk: '⚔ ATQ', hp: '❤ Vida', lv: '▲ Nível' }[sortF] || '↕ Padrão';
         const elPills = [['all', '✦'], ['terra', '🌿'], ['agua', '💧'], ['cristal', '💎'], ['estelar', '✨'], ['fogo', '🔥']].map(x => '<button type="button" class="dg-flb' + (elF === x[0] ? ' on' : '') + '" data-dg="el" data-el="' + x[0] + '">' + x[1] + '</button>').join('');
-        const rolePills = [['all', '🎭'], ['tank', '🛡'], ['shooter', '🎯'], ['control', '❄'], ['artillery', '☄'], ['support', '✚']].map(x => '<button type="button" class="dg-flb' + (roleF === x[0] ? ' on' : '') + '" data-dg="role" data-role="' + x[0] + '">' + x[1] + '</button>').join('');
+        const rolePills = [['all', '🎭', 'Todas as classes'], ['tank', '🛡', 'Guardião: ' + WAR_ROLES.tank.desc], ['shooter', '🎯', 'Atirador: ' + WAR_ROLES.shooter.desc], ['control', '❄', 'Controle: ' + WAR_ROLES.control.desc], ['artillery', '☄', 'Artilharia: ' + WAR_ROLES.artillery.desc], ['support', '✚', 'Suporte: ' + WAR_ROLES.support.desc], ['executioner', '⚔', 'Executor: ' + WAR_ROLES.executioner.desc]].map(x => '<button type="button" class="dg-flb' + (roleF === x[0] ? ' on' : '') + '" data-dg="role" data-role="' + x[0] + '" title="' + esc(x[2]) + '">' + x[1] + '</button>').join('');
         /* Cena Diegética do Santuário de Dragões (mesma arquitetura aberta da Forja e da Loja!) */
         e.innerHTML = '<div class="dg-top ar-head"><div class="dg-in">'
             + '<button type="button" class="dg-btn" data-dg="back">← Arena</button>'
             + clArenaNavHTML('drg')
             + '<span class="dg-gold">' + warCoinSvg(16) + ' ' + Math.floor(+G.gold || 0).toLocaleString('pt-BR') + '</span>'
+            + '<button type="button" class="dg-btn" data-dg="guide" title="Ver explicação de todas as Classes, Elementos e Combos">❓ Classes</button>'
             + '<button type="button" class="dg-btn' + (ZOO.adOnly ? ' on' : '') + '" data-dg="only">▲ Prontos (' + nr + ')</button>'
             + '<button type="button" class="dg-btn" data-dg="sort">' + sortLbl + '</button>'
             + '<button type="button" class="dg-btn" data-dg="rec" title="Recuperar dragões">↺</button>'
@@ -2785,12 +2792,12 @@
 
     /* Defense profiles leave the collection and duel statistics untouched. */
     const WAR_ROLES = {
-        tank: { n: 'Guardião', ic: '🛡', hp: 1.28, atk: .86, cost: 1, special: 19, desc: 'Resiste e protege aliados atrás de si.' },
-        shooter: { n: 'Atirador', ic: '🎯', hp: .95, atk: 1.04, cost: 1, special: 16, desc: 'Dano constante a longa distância.' },
-        control: { n: 'Controle', ic: '❄', hp: 1, atk: .88, cost: 1, special: 18, desc: 'Atrasa inimigos e abre tempo para a defesa.' },
-        artillery: { n: 'Artilharia', ic: '☄', hp: .88, atk: 1.12, cost: 1.08, special: 23, desc: 'Explosões contra grupos; precisa de proteção.' },
-        support: { n: 'Suporte', ic: '✚', hp: 1.05, atk: .78, cost: .95, special: 20, desc: 'Restaura aliados próximos ao lançar o especial.' },
-        executioner: { n: 'Executor', ic: '⚔', hp: 1, atk: 1.04, cost: 1.1, special: 24, desc: 'Dano adicional contra chefes e alvos feridos.' }
+        tank: { n: 'Guardião', ic: '🛡', hp: 1.28, atk: .86, cost: 1, special: 19, desc: '+28% Vida, -14% Ataque. Fica na linha de frente segurando inimigos para proteger quem ataca atrás.' },
+        shooter: { n: 'Atirador', ic: '🎯', hp: .95, atk: 1.04, cost: 1, special: 16, desc: '+4% Ataque e carrega Especial mais rápido (16s). Dano constante a longa distância.' },
+        control: { n: 'Controle', ic: '❄', hp: 1, atk: .88, cost: 1, special: 18, desc: 'Todo golpe aplica Lentidão (1,2s normal / 3s especial), atrasando hordas para o time.' },
+        artillery: { n: 'Artilharia', ic: '☄', hp: .88, atk: 1.12, cost: 1.08, special: 23, desc: '+12% Ataque, -12% Vida. Explosões fortes em grupos; coloque atrás de um Guardião.' },
+        support: { n: 'Suporte', ic: '✚', hp: 1.05, atk: .78, cost: .95, special: 20, desc: '-5% Custo. Ao lançar o Especial, cura 16% da Vida e dá Escudo (4s) aos aliados próximos (3×5).' },
+        executioner: { n: 'Executor', ic: '⚔', hp: 1, atk: 1.04, cost: 1.1, special: 24, desc: '+25% de dano bônus contra Chefes e inimigos feridos (abaixo de 35% de vida).' }
     };
     const WAR_ROLE_IDS = {
         musgo:'control', argila:'tank', orvalho:'support', brisa:'control', cascalho:'tank', cinza:'shooter',
