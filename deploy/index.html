@@ -46617,7 +46617,7 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
     const ZPT_STATIC = new Set(['ambar','arquimago_astral','aurora','brisa','bronze','cascalho','chamas','cinza','colosso_obsidiana','crono_engenheiro','demonio_cinzas','eclipse','esmeralda','floresta','guardiao_botanico','hamster','mare','morcego','morcego_noturno','musgo','nimbo','sabio','sereia_glacial','tempestade','vigia','vulcao']);
     function zPortrait(id) {
         if (ZPT.cache[id] !== undefined) return ZPT.cache[id];
-        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=4'; return ZPT.cache[id]; }
+        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=5'; return ZPT.cache[id]; }
         if (!CL3.sc || !zPortInit()) return '';
         let g = null;
         const rimMap = ZOO.rimU || {}, prevRim = (rimMap[id] && rimMap[id].value !== undefined) ? rimMap[id].value : null;
@@ -64853,7 +64853,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-072209';
+    const BUILD = '20261122-092909';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };
