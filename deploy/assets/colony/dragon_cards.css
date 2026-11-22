@@ -1162,39 +1162,39 @@ html body .wfg-dc.cf-wrap .sls { position: relative; z-index: 9; display: flex; 
 }
 .cl-wf .wf-num.anime .an-val {
   display: inline-flex; align-items: center; gap: 3px;
-  font-style: italic; letter-spacing: -.3px;
-  font-size: 32px;
-  color: var(--an-c, #fff4dc);
-  -webkit-text-stroke: 3.2px #100717;
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-style: normal; font-weight: 900; letter-spacing: -.01em;
+  font-size: 27px;
+  color: var(--an-c, #ffffff);
+  -webkit-text-stroke: 2.2px #140a0e;
   paint-order: stroke fill;
-  text-shadow: 0 3px 5px rgba(0,0,0,.92), 0 0 12px var(--an-glow, rgba(250,204,21,.65));
+  text-shadow: 0 3px 0 #140a0e, 0 6px 14px rgba(0,0,0,.85);
 }
 .cl-wf .wf-num.anime.big .an-val {
-  font-size: 42px;
-  color: #fef08a;
-  -webkit-text-stroke: 4px #240904;
+  font-size: 44px;
+  color: var(--an-c, #e879f9);
+  -webkit-text-stroke: 3px #12061c;
   paint-order: stroke fill;
-  text-shadow: 0 4px 6px rgba(0,0,0,.95), 0 0 16px rgba(251,146,60,.9);
+  text-shadow: 0 4px 0 #12061c, 0 0 22px color-mix(in srgb, var(--an-c, #e879f9) 75%, transparent);
 }
 .cl-wf .wf-num.anime.crit-hit {
   z-index: 30 !important;
-  animation: wfCritSlam 1.25s cubic-bezier(.14, 1.2, .26, 1) forwards !important;
+  animation: wfCritSlam 1.05s cubic-bezier(.16, 1, .3, 1) forwards !important;
 }
 .cl-wf .wf-num.anime.crit-hit .an-val {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic; font-weight: 900;
-  font-size: 60px !important;
-  letter-spacing: -.02em;
-  color: #fffbe0 !important;
-  -webkit-text-stroke: 4.5px #2b0502 !important;
+  font-family: 'Barlow', system-ui, sans-serif !important;
+  font-style: normal !important; font-weight: 900 !important;
+  font-size: 38px !important;
+  letter-spacing: -.01em;
+  color: #fde047 !important;
+  -webkit-text-stroke: 2.8px #451a03 !important;
   paint-order: stroke fill;
-  text-shadow: 0 6px 0 #8a1806, 0 9px 18px rgba(0,0,0,.96), 0 0 26px #ff5500, 0 0 46px rgba(253,224,71,.95) !important;
+  text-shadow: 0 4px 0 #451a03, 0 0 20px rgba(251,191,36,.75) !important;
 }
 .cl-wf .wf-num.anime.crit-hit .an-star {
-  font-style: normal; font-size: .62em; color: #fde047;
-  -webkit-text-stroke: 2.5px #2b0502;
+  font-style: normal; font-size: .72em; color: #fde047;
+  -webkit-text-stroke: 2px #451a03;
   paint-order: stroke fill;
-  filter: drop-shadow(0 0 12px #ff5500);
   margin-right: 2px;
 }
 .cl-wf .wf-slash {

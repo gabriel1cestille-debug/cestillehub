@@ -54961,7 +54961,7 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
     }
     function clEnsureCardCss() {
         if (document.getElementById('cf-cards-css')) return;
-        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite45'; document.head.appendChild(l);
+        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite46'; document.head.appendChild(l);
     }
     function clArenaCardHTML(sp, lv, star, imgHtml, opts) {
         clEnsureCardCss(); opts = opts || {};
@@ -56434,7 +56434,7 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
     function warDamageDragon(W, d, amount) {
         const guard = W.drag.some(g => g !== d && g.hp > 0 && g.lane === d.lane && g.col > d.col && WAR_ROLE_IDS[g.p.sp] === 'tank' && g.col - d.col <= 2);
         const boonRed = (W.boons && W.boons.escudo) ? Math.max(0.35, 1 - W.boons.escudo * 0.18) : 1;
-        const reduced = amount * (guard ? .8 : 1) * (d.shield > 0 ? .75 : 1) * boonRed;
+        const reduced = amount * (guard ? .8 : 1) * (d.shield > 0 ? .75 : 1) * (d.windup > 0 ? .5 : 1) * boonRed;   /* 2026-11-22: -50% dano durante a preparação do Especial */
         warReport(W,d).blocked += amount - reduced; d.hp -= reduced; return reduced;
     }
     function warRegionStep(W, dt) {
@@ -56579,7 +56579,7 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
     function warFire(W, d, kind, strong) {   /* um golpe do dragão d: o dano chega depois do tempo de voo (o desenho acompanha pelo W.fx) */
         const legH = WAR_LEG_HIT[d.p.sp]; let legShift = 0, legIn = 0;   /* só o atraso de fora conta (os de dentro de um golpe já partem do instante certo) */
         const warAt = legH ? ((W2, dl, fn) => W2.q.push({ at: W2.t + dl + (legIn ? 0 : legShift), fn: () => { legIn++; try { fn(); } finally { legIn--; } } })) : warAt0;
-        const K = WAR_KD[kind], el = d.p.el, o = { strong, kind, d, slow: el === 'agua' }, M = d.atk * 0.55 * K.m * (strong ? 3.2 * (WAR_SPEC_MUL[d.p.sp] || 1) : 1) * (strong && d.p.sp === 'nimbo' ? 1.15 : 1), L = d.lane, u = d.col;
+        const K = WAR_KD[kind], el = d.p.el, o = { strong, kind, d, slow: el === 'agua' }, M = d.atk * 0.55 * K.m * (strong ? 3.2 * (WAR_SPEC_MUL[d.p.sp] || 1) * ((d.p.rk | 0) >= 4 ? 1.25 : 1) : 1) * (strong && d.p.sp === 'nimbo' ? 1.15 : 1), L = d.lane, u = d.col;   /* 2026-11-22: +25% no Supremo Lendário compensando a animação épica de ~3s */
         const rep = warReport(W,d);
         if (strong) {
             rep.specials++;
@@ -56685,7 +56685,13 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
             const has1 = warHasTarget(W, d, k1), has2 = warHasTarget(W, d, k2);
             /* golpe supremo carregado (100%): só dispara se houver alvo estritamente dentro do alcance de k2! */
             if (d.sup >= 100 && has2 && !(W.silence > W.t)) {
-                d.windup = .65; W.fx('windup',{d,kind:k2});
+                const isLeg = (d.p.rk | 0) >= 4;
+                if (isLeg && (W._supGate || 0) > W.t) { if (has1) { warFire(W, d, k1, false); d.cd = Math.max(0.65, WAR_KD[k1].cd * 0.85); } return; }
+                if (isLeg) {
+                    W._supGate = W.t + 0.85;   /* fila curta: 2 Lendários não atropelam som/câmera no mesmo milissegundo */
+                    warEnemiesIn(W, Math.max(0, d.lane - 1), Math.min(W.L - 1, d.lane + 1), d.col - 0.3, d.col + (WAR_KD[k2] ? WAR_KD[k2].rg : 7) + 0.8).forEach(e => { e.slow = Math.max(e.slow || 0, e.boss ? 1.0 : 2.2); });
+                }
+                d.windup = isLeg ? 1.18 : 0.65; W.fx('windup', { d, kind: k2, isLeg });
                 return;
             }
             /* se k2 não tem alvo ainda, mas k1 tem alvo no alcance: ataca com o golpe básico sem desperdiçar o supremo no ar */
@@ -57184,15 +57190,15 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
             const v = pos.clone().project(V.cam); if (v.z > 1) return;
             const x = (v.x * .5 + .5) * b.clientWidth, y = (-v.y * .5 + .5) * b.clientHeight;
             const elCols = { fogo: '#ff7a3d', agua: '#4cd4ff', terra: '#5cf078', cristal: '#e078ff', estelar: '#ffe14d' };
-            const solidCol = isCrit ? '#ffdf4d' : (strong ? '#ffe14d' : (elCols[el] || '#ffffff'));
+            const solidCol = isCrit ? '#fde047' : (strong ? (elCols[el] || '#e879f9') : '#ffffff');
             const node = document.createElement('div');
             node.className = 'wf-num enemy-hit anime' + (isCrit ? ' crit-hit' : (strong ? ' big' : ''));
-            node.style.left = x + 'px'; node.style.top = (y - (isCrit ? 18 : 0)) + 'px';
+            node.style.left = x + 'px'; node.style.top = (y - (isCrit ? 16 : 0)) + 'px';
             node.style.setProperty('--dx', ((V.nums % 2 ? 1 : -1) * (12 + (V.nums % 4) * 7)) + 'px');
             node.style.setProperty('--an-c', solidCol);
             const numTxt = Math.round(damage).toLocaleString('pt-BR');
             node.innerHTML = isCrit
-                ? '<span class="an-val"><i class="an-star">★</i>' + numTxt + '</span>'
+                ? '<span class="an-tag">CRÍTICO</span><span class="an-val"><i class="an-star">✦</i>' + numTxt + '</span>'
                 : ((strong ? '<span class="an-tag">SUPREMO</span>' : '') + '<span class="an-val">' + numTxt + '</span>');
             b.appendChild(node);
             V.nums++;
@@ -57861,7 +57867,7 @@ return PreviewRarityAura;}
     }
     window.warSfxBus = warSfxBus;
     function warSfxUnlock() {   /* chamado em toques do jogador: libera o áudio (Safari/iOS só deixam tocar depois de um toque) */
-        try { const ctx = warAudioCtx(); if (!ctx) return; if (ctx.state === 'suspended') ctx.resume(); const o = ctx.createOscillator(), g = ctx.createGain(); g.gain.value = 0.0001; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.01); } catch (e) {}
+        try { const ctx = warAudioCtx(); if (!ctx) return; if (ctx.state === 'suspended') ctx.resume(); warStudioLoad(ctx); const o = ctx.createOscillator(), g = ctx.createGain(); g.gain.value = 0.0001; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.01); } catch (e) {}
     }
     /* Sons do DISPARO e do ATAQUE ESPECIAL (os acertos têm o warHitSfx): mesma voz em WebAudio, mesmo áudio liberado por toque, respeita o 🔊 da batalha */
     function warSynthKit(base, gateKey, gateMs, maxPerSec) {
@@ -57873,8 +57879,8 @@ return PreviewRarityAura;}
         const noise = (type, f, f2, q2, dur, g, dly) => { const sr = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), gn = ctx.createGain(), st = t0 + (dly || 0); sr.buffer = WARV.noiseB; fl.type = type; fl.frequency.setValueAtTime(f * pr, st); if (f2) fl.frequency.exponentialRampToValueAtTime(Math.max(40, f2 * pr), st + dur); fl.Q.value = q2; gn.gain.setValueAtTime(0.0001, st); gn.gain.exponentialRampToValueAtTime(Math.max(0.0002, g * vol), st + Math.min(0.06, dur * 0.3)); gn.gain.exponentialRampToValueAtTime(0.0001, st + dur); sr.connect(fl); fl.connect(gn); gn.connect(warSfxBus(ctx)); sr.start(st, Math.random() * 0.3); sr.stop(st + dur + 0.02); };
         return { tone, noise };
     }
-    function warShotSfx(d) {   /* disparo normal: sopro curto que sobe */
-        try { const k = warSynthKit(0.16, 'shot', 70, 7); if (!k) return; const el = (d && d.p && d.p.el) || ''; k.noise('bandpass', 700, 2200, 1.2, 0.11, 0.5); k.tone('triangle', 460, 300, 0.07, 0.3); if (el === 'fogo') k.noise('bandpass', 1500, 900, 2, 0.12, 0.2, 0.01); else if (el === 'agua') k.tone('sine', 520, 760, 0.1, 0.22); else if (el === 'cristal') k.tone('sine', 2000, 1700, 0.1, 0.14); else if (el === 'estelar') k.tone('sine', 900, 1200, 0.12, 0.14); } catch (e) {}
+    function warShotSfx(d) {   /* disparo normal: sci-fi limpo sem dissonância */
+        try { const V = WARV, now = performance.now(); if (V.muted || V.reducedSfx || now - (V._shAt || 0) < 90) return; V._shAt = now; if (warStudioPlay('cast_blaster', 0.16, 0.96 + Math.random() * 0.10)) return; } catch (e) {}
     }
     function warSpecialSfx(d, boomAt) {   /* ataque especial: carga que sobe, estouro grave e uma cauda do elemento do dragão */
         try {
@@ -57901,31 +57907,75 @@ return PreviewRarityAura;}
             return !!(sp && window.hasElementalSfx);
         } catch (e) { return false; }
     }
+    /* 2026-11-22: Motor de Áudio Studio MP3 Unificado (sem dissonância + sync 0ms nas explosões e Especiais!) */
+    const WAR_STUDIO_FILES = {
+        alien_pulse: './assets/colony/sfx/alien_pulse.mp3',
+        boom1:       './assets/colony/sfx/boom_impact_03.mp3',
+        hit_tight:   './assets/colony/sfx/hit_tight.mp3',
+        hit_crit:    './assets/colony/sfx/hit_crit_sweetener.mp3',
+        cast_blaster:'./assets/colony/sfx/cast_blaster.mp3',
+        cast_laser:  './assets/colony/sfx/cast_laser.mp3'
+    };
+    const WAR_STUDIO_TRIM = { alien_pulse: 2.35, boom1: 0.095, hit_tight: 0.018, hit_crit: 0.015, cast_blaster: 0.01, cast_laser: 0.01 };
+    const WAR_STUDIO_BUF = {};
+    let _warStudioLoading = false, _warSupIntro = null;
+    function warStudioLoad(ctx) {
+        if (_warStudioLoading || !ctx) return;
+        _warStudioLoading = true;
+        Object.keys(WAR_STUDIO_FILES).forEach(k => {
+            fetch(WAR_STUDIO_FILES[k]).then(r => r.ok ? r.arrayBuffer() : null).then(ab => ab ? ctx.decodeAudioData(ab) : null).then(buf => { if (buf) WAR_STUDIO_BUF[k] = buf; }).catch(() => {});
+        });
+    }
+    function warStopSupIntro() {
+        if (!_warSupIntro) return;
+        try {
+            const ctx = warAudioCtx(), t = ctx ? ctx.currentTime : 0;
+            _warSupIntro.g.gain.cancelScheduledValues(t);
+            _warSupIntro.g.gain.setValueAtTime(Math.max(0.001, _warSupIntro.g.gain.value), t);
+            _warSupIntro.g.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+            _warSupIntro.src.stop(t + 0.33);
+        } catch (er) {}
+        _warSupIntro = null;
+    }
+    function warStudioPlay(key, vol, rate, keepIntro) {
+        try {
+            const V = WARV; if (V.muted || V.reducedSfx) return false;
+            const ctx = warAudioCtx(); if (!ctx) return false;
+            warStudioLoad(ctx);
+            const buf = WAR_STUDIO_BUF[key]; if (!buf) return false;
+            if (ctx.state === 'suspended') { try { ctx.resume(); } catch (er) {} if (ctx.state !== 'running') return false; }
+            const t = ctx.currentTime, src = ctx.createBufferSource(), g = ctx.createGain();
+            src.buffer = buf; src.playbackRate.value = rate || 1.0;
+            const off = Math.min(Math.max(0, buf.duration - 0.06), WAR_STUDIO_TRIM[key] || 0);
+            g.gain.setValueAtTime(0.001, t); g.gain.linearRampToValueAtTime(vol == null ? 0.5 : vol, t + (keepIntro ? 0.08 : 0.008));
+            src.connect(g); g.connect(warSfxBus(ctx)); src.start(t, off);
+            if (keepIntro) { warStopSupIntro(); _warSupIntro = { src, g }; }
+            return true;
+        } catch (er) { return false; }
+    }
     function warHitSfx(a, e) {
         try {
             const V = WARV; if (V.muted || a.dot || V.reducedSfx) return;
-            if (a.sp && warLegSfxOn(a.sp)) return;   /* o acerto já está dentro da faixa do Lendário */
-            const sd = window.ruaSound;
-            const now = performance.now(); V._hq = (V._hq || []).filter(t => now - t < 1000); if (V._hq.length >= 10) return; if (now - (V._hl || 0) < 50) return; V._hl = now; V._hq.push(now);
-            const ctx = warAudioCtx(); if (!ctx) return;
-            if (ctx.state === 'suspended') { try { ctx.resume(); } catch (er) {} if (ctx.state !== 'running') return; }
-            const t0 = ctx.currentTime, big = !!(a.strong || (e && e.boss)), cfg = (sd && sd.cfg) || { master: 0.8, fx: 0.8 }, vol = (big ? 0.34 : 0.22) / (1 + V._hq.length * 0.06);   /* volume próprio: não depende do ajuste de som do Hub */
-            const pr = 1 + (Math.random() - 0.5) * 0.16, kind = a.kind || 'bolt', el = a.el || '';
-            const tone = (type, f0, f1, dur, g, dly) => { const o = ctx.createOscillator(), gn = ctx.createGain(), st = t0 + (dly || 0); o.type = type; o.frequency.setValueAtTime(f0 * pr, st); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1 * pr), st + dur); gn.gain.setValueAtTime(0.0001, st); gn.gain.exponentialRampToValueAtTime(Math.max(0.0002, g * vol), st + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, st + dur); o.connect(gn); gn.connect(warSfxBus(ctx)); o.start(st); o.stop(st + dur + 0.02); };
-            const noise = (type, f, q, dur, g, dly) => { const sr = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), gn = ctx.createGain(), st = t0 + (dly || 0); sr.buffer = V.noiseB; fl.type = type; fl.frequency.value = f * pr; fl.Q.value = q; gn.gain.setValueAtTime(0.0001, st); gn.gain.exponentialRampToValueAtTime(Math.max(0.0002, g * vol), st + 0.006); gn.gain.exponentialRampToValueAtTime(0.0001, st + dur); sr.connect(fl); fl.connect(gn); gn.connect(warSfxBus(ctx)); sr.start(st, Math.random() * 0.3); sr.stop(st + dur + 0.02); };
-            if (kind === 'melee' || kind === 'dive') { tone('sine', 150, 52, 0.15, 1.0); noise('bandpass', 1100, 1.2, 0.06, 0.55); }
-            else if (kind === 'beam' || kind === 'light') { tone('sawtooth', 980, 320, 0.13, 0.32); tone('square', 1500, 600, 0.07, 0.16); noise('bandpass', 3200, 2, 0.09, 0.3); }
-            else if (kind === 'breath' || kind === 'breath2') { noise('bandpass', 1500, 0.8, 0.16, 0.5); tone('sine', 95, 60, 0.12, 0.5); }
-            else if (kind === 'wave' || kind === 'wave2' || kind === 'nova' || kind === 'pillars') { tone('sine', 100, 42, 0.24, 1.0); noise('lowpass', 520, 0.7, 0.14, 0.45); }
-            else if (kind === 'meteor') { tone('sine', 72, 28, 0.34, 1.1); noise('lowpass', 760, 0.7, 0.24, 0.6); }
-            else if (kind === 'rain') { noise('highpass', 5200, 0.8, 0.05, 0.35); tone('sine', 700, 420, 0.05, 0.2); }
-            else { tone('triangle', 560, 250, 0.08, 0.55); noise('highpass', 3000, 0.7, 0.035, 0.28); }   /* bolt, bolt3 e o que não tem nome */
-            if (el === 'fogo') noise('bandpass', 2400, 3, 0.1, 0.22, 0.02);
-            else if (el === 'agua') tone('sine', 760, 430, 0.09, 0.26, 0.015);
-            else if (el === 'terra') noise('lowpass', 380, 0.8, 0.1, 0.35, 0.01);
-            else if (el === 'cristal') { tone('sine', 1900, 1500, 0.14, 0.2, 0.01); tone('sine', 2850, 2300, 0.1, 0.1, 0.02); }
-            else if (el === 'estelar') { tone('sine', 880, 880, 0.18, 0.16); tone('sine', 1320, 1320, 0.16, 0.1, 0.03); }
-            if (big) { tone('sine', 62, 34, 0.3, 0.9); noise('lowpass', 420, 0.7, 0.2, 0.5); }
+            const now = performance.now();
+            if (a.strong) {
+                if (now - (V._supSfxAt || 0) < 220) return;
+                V._supSfxAt = now;
+                warStopSupIntro();
+                if (a.sp === 'vigia') warStudioPlay('cast_laser', 0.58, 0.90);
+                if (warStudioPlay('boom1', 0.85, 0.85)) return;
+            }
+            if (a.crit) {
+                if (now - (V._critSfxAt || 0) < 90) return;
+                V._critSfxAt = now;
+                const ok1 = warStudioPlay('hit_crit', 0.58, 1.02);
+                const ok2 = warStudioPlay('hit_tight', 0.28, 1.08);
+                if (ok1 || ok2) return;
+            }
+            V._hq = (V._hq || []).filter(t => now - t < 1000);
+            if (V._hq.length >= 8 || now - (V._hl || 0) < 75) return;
+            V._hl = now; V._hq.push(now);
+            /* Básico: 100% Sci-Fi limpo, curto e coeso (sem dissonância!) */
+            if (warStudioPlay('hit_tight', 0.24 / (1 + V._hq.length * 0.05), 0.98 + Math.random() * 0.08)) return;
         } catch (er) {}
     }
     function warLegOverlay(cls, css) {
@@ -58061,9 +58111,21 @@ return PreviewRarityAura;}
         const warSfx = (k, arg) => { if (!V.muted) { try { aliveSound(k, arg); } catch (e) {} } };
         const st = a && a.d ? warStyleOf(a.d.p.spo) : 'terra', S = ZBT_ST[st] || ZBT_ST.terra;
         if(name === 'windup') {
-            const d=a.d; if(d.ent)warAct(d.ent,'atk',.7);
-            warP({tex:'star_03',col:S.c2,pos:warMouth(d),s0:.25,s1:1.4,life:.65,op:.65});
-            warSfx('chime');
+            const d=a.d, isLeg=!!a.isLeg || (d && d.p && (d.p.rk|0)>=4);
+            if(d.ent)warAct(d.ent,'atk', isLeg ? 1.15 : .7);
+            const mp = warMouth(d), gp = new T.Vector3(warXu(d.col), 0.09, warZl(d.lane));
+            warP({tex:'flare_01',col:S.c2,pos:mp,s0:.3,s1:isLeg ? 2.6 : 1.4,life:isLeg ? 1.15 : .65,op:.95});
+            if (isLeg) {
+                /* Preparação Épica Lendária: mandala giratória sob o dragão + partículas subindo + alien_pulse (2.35s) */
+                warRing(gp.x, gp.z, st, 2.8, 1.18, 0.95);
+                for (let i = 0; i < 12; i++) {
+                    const an = (i / 12) * 6.283;
+                    warP({ tex: 'star_02', col: i % 2 ? S.c : S.c2, pos: gp.clone().add(new T.Vector3(Math.cos(an)*1.3, 0.2, Math.sin(an)*1.3)), vel: new T.Vector3(-Math.cos(an)*1.1, 2.2, -Math.sin(an)*1.1), s0: 0.45, s1: 0.06, life: 0.85, op: 0.95 });
+                }
+                if (!warStudioPlay('alien_pulse', 0.72, 1.0, true)) warSfx('chime');
+            } else {
+                warSfx('chime');
+            }
         }
         else if (name === 'elementcombo') {
             const meta = {
@@ -58174,7 +58236,7 @@ return PreviewRarityAura;}
         else if (!PV && name === 'nova') { const d = a.d, x = warXu(d.col), z = warZl(d.lane), big = a.strong ? 1.4 : 1; warP({ tex: 'flare_01', col: S.c2, pos: new T.Vector3(x, 1, z), s0: 1, s1: 6 * big, life: 0.4, op: 0.95 }); warAtV(0.3, () => { warRing(x, z, st, a.rg * WC, 0.6, 1); warRing(x, z, st, a.rg * WC * 0.7, 0.5, 1); for (let i = 0; i < 20; i++) { const an = i / 20 * 6.283; warP({ tex: i % 2 ? S.tex : 'spark_01', col: i % 2 ? S.c : S.c2, pos: new T.Vector3(x, 0.8, z), vel: new T.Vector3(Math.cos(an) * 7, 0.5, Math.sin(an) * 4), s0: 0.6 * big, s1: 0.1, life: 0.6, op: 0.9, drag: 1.5 }); } V.shake = a.strong ? 0.8 : 0.3; }); }
         else if (!PV && name === 'pillars') { a.to.forEach((e, i) => warAtV(0.35 + i * 0.12, () => { const x = warXu(e.u), z = warZl(e.lane), g = new T.Mesh(new T.ConeGeometry(0.45, 1, 7), new T.MeshLambertMaterial({ color: S.c, emissive: S.c, emissiveIntensity: 0.6, flatShading: true })); g.position.set(x, 0, z); g.scale.set(1, 0.1, 1); WARV.sc.add(g); warBurst(new T.Vector3(x, 0.2, z), st, 8, 4, 0.8); warTw(0.8, u => { const k = u < 0.3 ? u / 0.3 : 1 - (u - 0.3) / 0.7 * 0.9; g.scale.set(1 + (u < 0.3 ? 0 : 0.2), Math.max(0.05, 2.6 * k * (a.strong ? 1.4 : 1)), 1); g.position.y = g.scale.y * 0.5; }, () => { WARV.sc.remove(g); g.geometry.dispose(); g.material.dispose(); }); })); }
         else if (!PV && name === 'lunge') { const d = a.d; if (d.ent) { d.ent.lunge = { a: 0, d: a.far ? 0.9 : 0.55, tx: warXu(a.to.u) - (a.far ? 0.6 : 1.0), far: !!a.far }; } warAtV(a.far ? 0.5 : 0.28, () => { warBurst(warEnPos(a.to), st, 12, 5, 1); V.shake = 0.35; }); }
-        else if (name === 'boom') { const p = new T.Vector3(warXu(a.u), 0.3, warZl(a.lane)); if (V.mapFX) V.mapFX.spawnExplosion(p, a.strong ? 1.5 : 1.0, '#ff6a1a', '#fde047'); else warBurst(p, 'fogo', a.strong ? 26 : 14, 6, a.strong ? 1.6 : 1.1); V.shake = Math.max(V.shake || 0, 0.4); }
+        else if (name === 'boom') { const p = new T.Vector3(warXu(a.u), 0.3, warZl(a.lane)); if (V.mapFX) V.mapFX.spawnExplosion(p, a.strong ? 1.85 : 1.15, '#ff6a1a', '#fde047'); else warBurst(p, 'fogo', a.strong ? 32 : 16, 6.5, a.strong ? 1.8 : 1.2); V.shake = Math.max(V.shake || 0, a.strong ? 0.55 : 0.38); warStudioPlay('boom1', a.strong ? 0.88 : 0.62, a.strong ? 0.85 : 1.0); }
         else if (name === 'stun') { const p = warEnPos(a.e), to = a.d.ent ? a.d.ent.holder.position.clone().add(new T.Vector3(0, 0.8, 0)) : p; warFlyBall(p.clone().add(new T.Vector3(0, 1, 0)), to, 'cristal', 1, 0.4, true); warAtV(0.4, () => { warBurst(to, 'estelar', 10, 3, 0.8); if (a.d && a.d.ent) { a.d.ent.fl = 0.9; a.d.ent.recoil = 0.9; } if (a.dmg > 0) warTxt(to.clone().add(new T.Vector3(0, 0.8, 0)), '🔮 -' + a.dmg, 'dhit'); warSfx('pop'); }); }
         else if (name === 'tide') { const z = warZl(a.lane); warBanner('Uma onda atordoa uma faixa!', 'flag'); warTw(0.9, u => { const x = warXu(WAR_COLS + 1) + (warXu(-1) - warXu(WAR_COLS + 1)) * u; for (let i = 0; i < 4; i++) warP({ tex: 'circle_05', col: '#7fc0ff', pos: new T.Vector3(x, 0.4 + Math.random() * 1.2, z + (Math.random() - 0.5) * 1.3), s0: 1.2, s1: 0.3, life: 0.5, op: 0.8 }); }); V.shake = 0.5; }
         else if (name === 'fire') { const sp = warSprite(zFxTex('flame_03'), '#ff8a2a', true); sp.scale.set(1.6, 2.2, 1); sp.position.set(warXu(a.col), 0.9, warZl(a.lane)); WARV.sc.add(sp); V.fires.push({ sp, t: 7, ph: Math.random() * 6 }); warBurst(sp.position.clone(), 'fogo', 8, 3, 0.8); }
@@ -64853,7 +64915,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-094334';
+    const BUILD = '20261122-120615';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };
