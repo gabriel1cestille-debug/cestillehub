@@ -1,28 +1,44 @@
-# 🐉 Cestille Hub — 3D Colony & Dragon Arena (WebGL / Three.js)
+# 🐉 Cestille Hub — Interactive 3D Universe, Colony Builder & Dragon Battle Arena
 
 [![Play Live](https://img.shields.io/badge/%E2%96%B6%20Play%20Live-Cloudflare%20Workers-f59e0b?style=for-the-badge)](https://teste.gabriel1-cestille.workers.dev)
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL%20%2F%20GLSL-049ef4?style=for-the-badge&logo=threedotjs)](https://threejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](LICENSE)
 
-> **A browser-native 3D colony builder and tactical dragon battle game** built with Three.js, custom GLSL shaders, procedural + skeletal 3D animation, diegetic UI, and cloud save synchronization — playable instantly on Desktop, iPad, and iPhone (landscape) with zero installation.
+> **A browser-native 3D interactive ecosystem** combining a playable **Solar System Universe Hub**, a **3D Colony Builder**, a **Neon Street Productivity View**, and a **Tactical 3D Dragon Battle Arena** — built with Three.js, custom GLSL shaders, procedural + skeletal 3D animation, diegetic UI, and cloud save sync. Runs instantly on Desktop, iPad, and iPhone (landscape) with zero installation.
 
 <p align="center">
-  <img src="deploy/assets/colony/arena_menu.jpg" alt="Cestille Hub — Arena Menu" width="88%">
+  <img src="docs/screenshots/battle.jpg" alt="Cestille Hub — 3D Dragon Battle Arena" width="49%">
+  <img src="docs/screenshots/colony.jpg" alt="Cestille Hub — 3D Colony Island" width="49%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/universe.jpg" alt="Cestille Hub — 3D Universe Solar System" width="49%">
+  <img src="docs/screenshots/street.jpg" alt="Cestille Hub — Neon Street Workspace" width="49%">
 </p>
 
 ---
 
-## ✨ Key Features
+## ✨ Four Integrated Experiences
 
-### ⚔️ Tactical 3D Battle Arena
+### 🌌 1. Interactive 3D Universe Hub
+- Real-time Three.js solar system with glowing central star, orbiting 3D worlds, orbital rings, radar minimap, and smooth camera transitions into every experience.
+
+### 🏰 2. 3D Colony Builder & Breeding Incubator
+- Interactive 3D island with dynamic day/night lighting, architectural buildings (Castle, Windmill, Forge, Crystal Mine, Observatory, Incubator Tree), resource economy, villagers, and dragon breeding with elemental synergies and rarity pity.
+
+### ⚔️ 3. Tactical 3D Dragon Battle Arena
 - **31 Unique 3D Creatures:** Each dragon/creature features a distinct `.glb` mesh or procedural Three.js sculpt, studio-rendered portraits, tactical combat roles (*Tank, Shooter, Control, Artillery, Support*), and elemental passives.
-- **Real-Time Elemental Combo System:** Six elemental reactions (`💧+🔥 Thermal Shock`, `💧+✨ Electric Conduction`, `🌿+🔥 Wildfire`, `💎+💥 Prismatic Refraction`, `💧+💧 Freezing Tide`, `💧+🌿 Shatter ×2.0`) with 3D burst rings, custom floating combat typography, and an interactive in-battle combo reference HUD.
+- **Real-Time Elemental Combo System:** Six elemental reactions (`💧+🔥 Thermal Shock`, `💧+✨ Electric Conduction`, `🌿+🔥 Wildfire`, `💎+💥 Prismatic Refraction`, `💧+💧 Freezing Tide`, `💧+🌿 Shatter ×2.0`) with 3D burst rings, custom floating combat typography, and an interactive in-battle combo HUD.
 - **Multi-Act Camera Cinematics (`warCinePlay`):** Scenic arena intro sweep, seismic boss entrance with procedural stomp audio, 2-act Legendary Special cinematics, and slow-motion final-blow camera.
-- **Roguelike Endless Mode:** Progressive survival waves that carry over surviving units and essence between waves, featuring a 1-of-3 **Boon Draft** every wave and milestone chests.
-- **Full Meta-Progression:** Multi-region Campaign with unique bosses, Weekly Boss challenge, Daily Missions, Achievements, Daily Arcane Shop, and Interactive Collection Album.
+- **Roguelike Endless Mode & Meta-Progression:** Survival waves carrying over surviving units and essence with a 1-of-3 **Boon Draft** per wave, Campaign with unique bosses, Weekly Boss, Daily Missions, Achievements, Daily Arcane Shop, and Collection Album.
 
-### ⚒️ Diegetic Fantasy UI ("Obsidian & Brass")
-- **Ancestral Forge, Dragon Sanctuary & Arcane Shop** crafted as full-bleed diegetic stages over painted artwork, featuring levitating 3D/2D relics with diffused volumetric lighting, circular forged rune sockets, and GPU-accelerated transitions.
+### 🌆 4. Neon Street Workspace
+- Atmospheric rainy neon street view integrating daily timeline, tasks, and quick notes synced to the cloud.
+
+---
+
+## ⚒️ Diegetic Fantasy UI ("Obsidian & Brass")
+
+The **Ancestral Forge**, **Dragon Sanctuary**, and **Arcane Shop** are crafted as full-bleed diegetic stages over painted artwork, with levitating relics, diffused volumetric lighting, circular forged rune sockets, and GPU-accelerated hover transitions.
 
 <p align="center">
   <img src="deploy/assets/colony/forge_bg_hd.jpg" alt="Ancestral Rune Forge" width="32%">
@@ -30,7 +46,10 @@
   <img src="deploy/assets/colony/shop_bg_hd.jpg" alt="Arcane Shop" width="32%">
 </p>
 
-### 🐉 Custom GLSL Shaders & Hybrid 3D Animation
+---
+
+## 🐉 Custom GLSL Shaders & Hybrid 3D Animation
+
 - **Custom PBR/GLSL Shaders (`onBeforeCompile`):** Symmetric 5-stop wing gradients, animated Fresnel rim lighting, *Liquid Mirror* metallic finishes (`metalness: 1.0`, `clearcoat: 1.0`, procedural bioluminescence maps), and *Matte Scales PBR* with normal/roughness maps.
 - **Hybrid Skeletal + Procedural Animation:** Combines authored `.glb` clips with additive quaternion wingbeats, bone-hierarchy attachment fixes, and fully articulated procedural creatures (such as the *Glacial Amethyst Mermaid* with an 8-segment sinusoidal tail and flowing hair locks).
 
@@ -41,9 +60,6 @@
   <img src="deploy/assets/colony/portraits/esmeralda.png" alt="Emerald Dragon" width="18%">
   <img src="deploy/assets/colony/portraits/morcego_noturno.png" alt="Nightwing Manta" width="18%">
 </p>
-
-### 🏰 3D Colony & Breeding Incubator
-- Interactive 3D island with dynamic day/night lighting, architectural buildings, resource economy, **Incubator Tree**, elemental breeding synergies, and rarity pity system.
 
 ---
 
@@ -64,6 +80,7 @@
 │   ├── 02-dragons-arena.js  # 31 species, breeding, GLB/procedural 3D builders, PBR shaders & 3D Book
 │   └── 03-war-ui.js         # Tactical 3D Arena, combos, cinematics, Forge, Shop, Sanctuary & HUD
 ├── deploy/                  # Production static build deployed to Cloudflare Workers
+├── docs/screenshots/        # Live gameplay screenshots (Universe, Colony, Street, Battle)
 ├── tools/deploy.py          # Syncs modules, stamps build version, and deploys to Cloudflare Workers
 ├── firestore.rules          # Firestore security rules
 ├── wrangler.jsonc           # Cloudflare Workers configuration
