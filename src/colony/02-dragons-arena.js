@@ -18,7 +18,7 @@
         { id: 'mare', n: 'Dragão da Maré', rk: 1, el: 'agua', pd: 'Pérolas', ic: 'ph-waves', k: 'b', dr: 1, base: 'ulyssan', tint: ['#298aff', 0.9], glow: '#4da6ff', D: 1.05, cl: { c: '#298aff', c2: '#ffffff', beak: '#ffb020', leg: '#298aff', sz: 1.0, wing: '#298aff' } },
         { id: 'geada', n: 'Dragão da Geada', rk: 1, el: 'agua', pd: 'Gelo', ic: 'ph-snowflake', k: 'b', dr: 1, base: 'icy', tint: null, glow: '#bce4ff', D: 1.0, cl: { c: '#e2f3ff', c2: '#ffffff', beak: '#ffb020', leg: '#e2f3ff', sz: 1.0, wing: '#e2f3ff' } },
         { id: 'bronze', n: 'Dragão de Bronze', rk: 1, el: 'terra', pd: 'Bronze', ic: 'ph-medal', k: 'b', dr: 1, base: 'tilt', tint: null, glow: null, D: 1.08, cl: { c: '#c97d32', c2: '#ffffff', beak: '#ffb020', leg: '#c97d32', sz: 1.0, wing: '#c97d32' } },
-        { id: 'prisma', n: 'Dragão Prisma', rk: 2, el: 'cristal', pd: 'Cristal bruto', ic: 'ph-diamond', k: 'b', dr: 1, base: 'elder', tint: ['#5de8ff', 0.9], glow: '#4de0ff', D: 1.1, cl: { c: '#5de8ff', c2: '#ffffff', beak: '#ffb020', leg: '#5de8ff', sz: 1.0, wing: '#5de8ff' } },
+        { id: 'prisma', n: 'Dragão Prisma', rk: 2, el: 'cristal', pd: 'Cristal bruto', ic: 'ph-diamond', k: 'b', dr: 1, base: 'prisma_cristal', tint: null, glow: '#4de0ff', D: 1.15, cl: { c: '#5de8ff', c2: '#ffffff', beak: '#ffb020', leg: '#5de8ff', sz: 1.0, wing: '#5de8ff' } },
         { id: 'esmeralda', n: 'Dragão Esmeralda', rk: 2, el: 'cristal', pd: 'Esmeraldas', ic: 'ph-diamond', k: 'b', dr: 1, base: 'esmeralda', tint: null, glow: '#28f585', D: 1.15, cl: { c: '#14e872', c2: '#ffffff', beak: '#ffb020', leg: '#14e872', sz: 1.0, wing: '#14e872' } },
         { id: 'solar', n: 'Dragão Solar', rk: 2, el: 'estelar', pd: 'Luz solar', ic: 'ph-sun', k: 'b', dr: 1, base: 'fire', tint: ['#ffd23a', 0.55], glow: '#ffd64a', D: 1.15, cl: { c: '#ffc820', c2: '#ffffff', beak: '#ffb020', leg: '#ffc820', sz: 1.0, wing: '#ffc820' } },
         { id: 'sabio', n: 'Dragão Sábio', rk: 2, el: 'terra', pd: 'Sálvia', ic: 'ph-plant', k: 'b', dr: 1, base: 'sage', tint: null, glow: null, D: 1.1, cl: { c: '#7fae6a', c2: '#ffffff', beak: '#ffb020', leg: '#7fae6a', sz: 1.0, wing: '#7fae6a' } },
@@ -638,7 +638,7 @@
     const ZPT_STATIC = new Set(['ambar','arquimago_astral','aurora','brisa','bronze','cascalho','chamas','cinza','colosso_obsidiana','crono_engenheiro','demonio_cinzas','eclipse','esmeralda','floresta','guardiao_botanico','hamster','mare','morcego','morcego_noturno','musgo','nimbo','sabio','sereia_glacial','tempestade','vigia','vulcao']);
     function zPortrait(id) {
         if (ZPT.cache[id] !== undefined) return ZPT.cache[id];
-        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=5'; return ZPT.cache[id]; }
+        if (ZPT_STATIC.has(id)) { ZPT.cache[id] = './assets/colony/portraits/' + id + '.png?v=6'; return ZPT.cache[id]; }
         if (!CL3.sc || !zPortInit()) return '';
         let g = null;
         const rimMap = ZOO.rimU || {}, prevRim = (rimMap[id] && rimMap[id].value !== undefined) ? rimMap[id].value : null;
@@ -3876,7 +3876,8 @@
         arquimago_astral: { f: 'dragons/arquimago_astral.glb', fly: /btl_0011/i, idle: /btl_0011/i, atk: /btl_2201|btl_2001/i, fts: 1, yaw: Math.PI / 2, nb: 1, finish: ['obsidian', 'liquid_mirror'], wingBoost: 1 },
         esmeralda: { f: 'dragons/esmeralda.glb', fly: null, idle: null, walk: null, fts: 1, yaw: Math.PI / 2, nb: 1, rawPbr: 1, standStill: 1, webWingBoost: 1 },
         aurora: { f: 'dragons/aurora.glb', fly: /Take/i, fts: 1, yaw: 0, nb: 1, finish: ['amethyst', 'reptile_matte'] },
-        crono_engenheiro: { f: 'dragons/crono_engenheiro.glb', fly: /Flying/i, idle: /Flying/i, atk: /Attack/i, fts: 1, yaw: Math.PI / 2, nb: 1, rawPbr: 1 }
+        crono_engenheiro: { f: 'dragons/crono_engenheiro.glb', fly: /Flying/i, idle: /Flying/i, atk: /Attack/i, fts: 1, yaw: Math.PI / 2, nb: 1, rawPbr: 1 },
+        prisma_cristal: { f: 'dragons/ulyssan.glb', fly: /fly_glide|fly/i, idle: /idle_calm|idle/i, walk: /walk/i, atk: /attack_claw|attack_bite|cast_ice/i, hit: /hurt_heavy|hurt/i, die: /death_ground|death/i, fts: 1, yaw: -Math.PI / 2, nb: 1, finish: ['prisma', 'liquid_mirror'] }
     };
     const ZMD = {}; ZSP.forEach(sp => { ZMD[sp.id] = { f: ZDB[sp.base].f, D: sp.D, yaw: ZDB[sp.base].yaw !== undefined ? ZDB[sp.base].yaw : Math.PI / 2, nb: !!ZDB[sp.base].nb, dragon: true, base: sp.base, tint: sp.tint, glow: sp.glow }; });
     const zModelOk = f => (typeof f === 'string' && f.indexOf('custom:') === 0) || !!(CLM.tpl[f] && CLM.tpl[f].gl);
@@ -3921,7 +3922,8 @@
     const ZCF_CACHE = { maps: {}, uTime: { value: 0 } };
     const ZCF_PALS = {
         obsidian: { back: '#14121f', mid: '#262038', tip: '#fbbf24', belly: '#362c4d', rim: '#fde047' },
-        amethyst: { back: '#1e1038', mid: '#8b5cf6', tip: '#f5d0fe', belly: '#faf5ff', rim: '#e879f9' }
+        amethyst: { back: '#1e1038', mid: '#8b5cf6', tip: '#f5d0fe', belly: '#faf5ff', rim: '#e879f9' },
+        prisma:   { back: '#0284c7', mid: '#38bdf8', tip: '#f0abfc', belly: '#f0f9ff', rim: '#7dd3fc' }
     };
     const ZCF_PROFS = {
         liquid_mirror: { tex: 'biolum_spots', rough: 0.04, metal: 1.00, cc: 1.00, ccR: 0.02, env: 2.2, bump: 0.03, em: 0.9 },
