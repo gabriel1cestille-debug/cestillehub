@@ -56340,12 +56340,19 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
     const WAR_COLS = 8;   /* casas por faixa (u = 0..7; o portão fica em u = -1; a névoa nasce em u = 8.6) */
     const WAR_KIND = { dash: 'melee', tail: 'melee', dive: 'dive', orb: 'bolt', triple: 'bolt3', wave: 'wave', breath: 'breath', meteors: 'meteor', beam: 'beam', rain: 'rain', nova: 'nova', pillars: 'pillars', lightning: 'light' };
     /* cd: intervalo (s) · m: força · rg: alcance em casas · cada golpe tem jeito próprio de atacar */
-    const WAR_RK_HP = [.88, 1.05, 1.26, 1.50, 1.65], WAR_RK_ATK = [.80, 1.10, 1.42, 1.80, 2.1], WAR_SP_ATK = { ambar: 1.25, argila: 1.54, arquimago_astral: 1.41, aurora: 0.92, brisa: 0.73, bronze: 1.28, cascalho: 0.73, chamas: 2.4, cinza: 0.75, colosso_obsidiana: 1.23, crono_engenheiro: 1.7, demonio_cinzas: 1.15, eclipse: 1.18, esmeralda: 1.35, floresta: 1.82, geada: 1.65, hamster: 1.28, mare: 1.09, morcego: 1.3, morcego_noturno: 1.34, musgo: 1.45, nimbo: 1.35, orvalho: 1.56, prisma: 0.95, sabio: 1.79, sereia_glacial: 1.72, solar: 0.55, tempestade: 1.93, vigia: 1.23, vulcao: 0.81 };   /* 2026-11-16 (equilíbrio por tipo de golpe): multiplicador de ataque por espécie calculado por tools/balanceamento/dps_por_especie.cjs (dano misto alvo único + grupo, alvo por raridade e papel) */   /* 2026-11-16: grau de raridade escala vida/ataque (antes só ataque 1,08/1,20 e a simulação mostrava Comuns vencendo mais que Lendários) */
+    const WAR_RK_HP = [.88, 1.05, 1.26, 1.50, 1.65], WAR_RK_ATK = [.80, 1.10, 1.42, 1.80, 2.1], WAR_SP_ATK = { ambar: 1.25, argila: 1.54, arquimago_astral: 1.41, aurora: 0.92, brisa: 0.73, bronze: 1.28, cascalho: 0.73, chamas: 2.4, cinza: 0.75, colosso_obsidiana: 1.23, crono_engenheiro: 1.7, demonio_cinzas: 1.15, eclipse: 1.18, esmeralda: 1.35, floresta: 1.82, geada: 1.65, guardiao_botanico: 1.52, hamster: 1.28, mare: 1.09, morcego: 1.3, morcego_noturno: 1.34, musgo: 1.45, nimbo: 1.35, orvalho: 1.56, prisma: 0.95, sabio: 1.79, sereia_glacial: 1.72, solar: 0.55, tempestade: 1.93, vigia: 1.23, vulcao: 0.81 };   /* 2026-11-22: incluído guardiao_botanico=1.52 para completar 31/31 espécies calibradas */
     const WAR_RK_CHG = [1, 1, 1, 0.9, 0.7];   /* lendário recarrega o especial mais rápido */
     const WAR_SPEC_MUL = { vigia: 1.5, demonio_cinzas: 1.0 };   /* 2026-11-16: Vigia (lendário, custo 170) tinha o especial mais fraco; Demônio das Cinzas tinha 3x o dos outros lendários */
     /* 2026-11-16: breath2/wave2 = versões reforçadas só para Demônio das Cinzas e Morcego (lendários que ficavam em 12-16k de dano contra ~33k dos outros) */
     /* Lendários com coreografia nova (war_legendary_fx.js): o dano cai no instante do estouro desenhado. [golpe normal, especial] em segundos; FIRST = quando cada tipo de golpe costuma cair sem ajuste */
-    const WAR_LEG_HIT = { vigia: [0.44, 1.18], eclipse: [0.62, 1.48], morcego: [0.42, 1.38], hamster: [1.0, 1.62], demonio_cinzas: [0.38, 1.40], colosso_obsidiana: [0.31, 1.42], arquimago_astral: [0.52, 1.48] };
+    /* 2026-11-22: Tempos exatos de clímax dos Especiais 3D V2 (31/31 dragões) para o dano cair junto com a explosão visual (nunca matar/sumir o inimigo antes da onda/meteoro chegar) */
+    const WAR_LEG_HIT = { vigia: [0.44, 1.13], eclipse: [0.62, 1.30], morcego: [0.42, 1.28], hamster: [1.0, 1.16], demonio_cinzas: [0.38, 1.16], colosso_obsidiana: [0.31, 0.99], arquimago_astral: [0.52, 0.99] };
+    const WAR_V2_HIT = {
+        vigia: 1.13, eclipse: 1.30, morcego: 1.28, hamster: 1.16, demonio_cinzas: 1.16, colosso_obsidiana: 0.99, arquimago_astral: 0.99, nimbo: 1.33,
+        sereia_glacial: 0.97, mare: 0.97, orvalho: 0.94, geada: 1.18, musgo: 1.15, floresta: 1.15, guardiao_botanico: 1.15,
+        prisma: 0.73, esmeralda: 1.07, tempestade: 0.96, vulcao: 1.08, chamas: 1.08, ambar: 1.08,
+        argila: 0.77, cascalho: 0.77, bronze: 0.77, solar: 0.99, aurora: 1.05, sabio: 1.05, crono_engenheiro: 1.15, morcego_noturno: 1.10, brisa: 1.05, cinza: 1.05
+    };
     const WAR_LEG_FIRST = { melee: 0.3, dive: 0.55, bolt: 0.3, bolt3: 0.3, wave: 0.3, wave2: 0.3, breath: 0.2, breath2: 0.2, beam: 0.35, light: 0.25, meteor: 0.55, rain: 0.25, nova: 0.3, pillars: 0.35 };
     const WAR_LEG_DIST = { bolt: 1 / 11, bolt3: 1 / 12, wave: 1 / 7, wave2: 1 / 7 };   /* quanto o tempo de voo/ondas cresce com a distância ao alvo da frente */
     const WAR_KIND_OVR = { aurora: { breath: 'breath2' }, demonio_cinzas: { breath: 'breath2' }, morcego: { wave: 'wave2' } };
@@ -56577,10 +56584,13 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
         (e.eaten || []).forEach(d => { d.swallowed = 0; d.hp = Math.max(1, Math.round(d.mx * 0.6)); let col = Math.round(d.col); if (warDragAt(W, d.lane, col)) { col = -1; for (let c = 0; c < WAR_COLS; c++) if (!warDragAt(W, d.lane, c)) { col = c; break; } } if (col < 0) return; d.col = col; W.drag.push(d); W.fx('place', { d }); }); e.eaten = [];
     }
     function warKill(W, d) { if (d.dead) return; d.dead = 1; d.hp = 0; W.stats.fell++; W.fx('dfall', { d }); const i = W.drag.indexOf(d); if (i >= 0) W.drag.splice(i, 1); }
-    const WAR_NIMBO_BOOM = 1.25;   /* segundos até a Serpente da Aurora (especial do Nimbo) explodir no alvo: o dano e o estouro do som esperam esse tempo */
-    function warFire(W, d, kind, strong) {   /* um golpe do dragão d: o dano chega depois do tempo de voo (o desenho acompanha pelo W.fx) */
-        const legH = WAR_LEG_HIT[d.p.sp]; let legShift = 0, legIn = 0;   /* só o atraso de fora conta (os de dentro de um golpe já partem do instante certo) */
-        const warAt = legH ? ((W2, dl, fn) => W2.q.push({ at: W2.t + dl + (legIn ? 0 : legShift), fn: () => { legIn++; try { fn(); } finally { legIn--; } } })) : warAt0;
+    const WAR_NIMBO_BOOM = 1.33;   /* segundos até a Serpente da Aurora (especial do Nimbo) explodir no alvo: sincronizado com o clímax 3D V2 (1.48 * 0.90) */
+    function warFire(W, d, kind, strong) {   /* um golpe do dragão d: o dano chega sincronizado no instante exato do impacto visual */
+        const legH = WAR_LEG_HIT[d.p.sp];
+        const v2Hit = strong ? WAR_V2_HIT[d.p.sp] : 0;
+        const targetHit = legH ? legH[strong ? 1 : 0] : (d.p.sp === 'nimbo' ? 0 : v2Hit);
+        let legShift = 0, legIn = 0;   /* só o atraso de fora conta (os de dentro de um golpe já partem do instante certo) */
+        const warAt = targetHit ? ((W2, dl, fn) => W2.q.push({ at: W2.t + dl + (legIn ? 0 : legShift), fn: () => { legIn++; try { fn(); } finally { legIn--; } } })) : warAt0;
         const K = WAR_KD[kind], el = d.p.el, o = { strong, kind, d, slow: el === 'agua' }, M = d.atk * 0.55 * K.m * (strong ? 3.2 * (WAR_SPEC_MUL[d.p.sp] || 1) * ((d.p.rk | 0) >= 4 ? 1.25 : 1) : 1) * (strong && d.p.sp === 'nimbo' ? 1.15 : 1), L = d.lane, u = d.col;   /* 2026-11-22: +25% no Supremo Lendário compensando a animação épica de ~3s */
         const rep = warReport(W,d);
         if (strong) {
@@ -56591,10 +56601,10 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
         }
         const maxU = u + K.rg;
         const ahead = warEnemiesIn(W, L, L, u - 0.3, maxU).sort((a, b) => a.u - b.u), pierce = el === 'cristal' ? 2 : 1;
-        if (legH) legShift = Math.max(0, legH[strong ? 1 : 0] - (WAR_LEG_FIRST[kind] || 0.3) - (ahead[0] ? Math.abs(ahead[0].u - u) * (WAR_LEG_DIST[kind] || 0) : 0));
+        if (targetHit) legShift = Math.max(0, targetHit - (WAR_LEG_FIRST[kind] || 0.3) - (ahead[0] ? Math.abs(ahead[0].u - u) * (WAR_LEG_DIST[kind] || 0) : 0));
         const visualTarget = ahead[0] || (strong && d.p.sp === 'nimbo' && kind === 'wave' ? warEnemiesIn(W, L-1, L+1, u-.3, maxU).sort((a,b)=>a.u-b.u)[0] : null);
         try {
-            if (!WARV.muted) {
+            if (!WARV.muted && !(strong && WAR_V2_SP.has(d.p.sp))) {
                 const ctx = warAudioCtx();
                 const legDone = window.playLegendarySfx && window.playLegendarySfx(d.p.sp, !!strong, ctx);
                 if (!legDone && window.playElementalSfx) window.playElementalSfx(d.p.el, !!strong, ctx);
@@ -58869,24 +58879,23 @@ return PreviewRarityAura;}
                 const tp = a.to ? warEnPos(a.to) : new T.Vector3(dx + 5.2, 0.9, dz);
                 const tx = tp.x, tz = tp.z;
                 const legCol = (d.p.spo && d.p.spo.glow) || S.c || '#fde047';
+                const cDur = 1.65, cImp = Math.min(0.84, Math.max(0.50, (WAR_V2_HIT[d.p.sp] || 1.15) / cDur));
                 warCinePlay({
-                    kind: 'legend', dur: 2.35, slow: 0.28, col: legCol, cardOffU: 0.84,
+                    kind: 'legend', dur: cDur, slow: 0.60, col: legCol, cardOffU: 0.84,
                     tag: '✨ SUPREMO LENDÁRIO', title: (d.p.names && d.p.names[1]) || 'Golpe Supremo', sub: d.p.n || '',
                     path: [
-                        { u: 0.00, pos: V.cam0.clone(), look: V.look.clone(), fov: 42, slow: 0.34 },
-                        { u: 0.22, pos: new T.Vector3(dx + 3.4, 2.7, dz + 4.5), look: new T.Vector3(dx + 0.4, 1.35, dz), fov: 33, slow: 0.22 },
-                        { u: 0.42, pos: new T.Vector3(dx + 2.8, 3.0, dz + 4.9), look: new T.Vector3((dx + tx) * 0.5, 1.25, (dz + tz) * 0.5), fov: 35, slow: 0.30 },
-                        { u: 0.56, pos: new T.Vector3(tx - 1.4, 4.3, tz + 6.4), look: new T.Vector3(tx, 1.1, tz), fov: 37, slow: 0.34 },
-                        { u: 0.82, pos: new T.Vector3(tx + 0.5, 5.2, tz + 7.2), look: new T.Vector3(tx, 1.0, tz), fov: 40, slow: 0.58 },
+                        { u: 0.00, pos: V.cam0.clone(), look: V.look.clone(), fov: 42, slow: 0.65 },
+                        { u: 0.22, pos: new T.Vector3(dx + 3.4, 2.7, dz + 4.5), look: new T.Vector3(dx + 0.4, 1.35, dz), fov: 34, slow: 0.52 },
+                        { u: 0.46, pos: new T.Vector3(dx + 2.8, 3.0, dz + 4.9), look: new T.Vector3((dx + tx) * 0.5, 1.25, (dz + tz) * 0.5), fov: 36, slow: 0.58 },
+                        { u: 0.66, pos: new T.Vector3(tx - 1.4, 4.3, tz + 6.4), look: new T.Vector3(tx, 1.1, tz), fov: 38, slow: 0.62 },
+                        { u: 0.86, pos: new T.Vector3(tx + 0.5, 5.2, tz + 7.2), look: new T.Vector3(tx, 1.0, tz), fov: 40, slow: 0.78 },
                         { u: 1.00, pos: V.cam0.clone(), look: V.look.clone(), fov: 42, slow: 1.0 }
                     ],
-                    impactU: 0.54,
+                    impactU: cImp,
                     onImpact: () => {
                         try {
-                            V.shake = Math.max(V.shake || 0, 0.72);
-                            warRing(tx, tz, st, 8.5, 0.65, 1);
-                            const fl = V.box && V.box.querySelector('.wf-flash');
-                            if (fl) { fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on'); }
+                            V.shake = Math.max(V.shake || 0, 0.58);
+                            warRing(tx, tz, st, 4.5, 0.52, 0.75);
                         } catch (er) {}
                     }
                 });
@@ -65600,7 +65609,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-125419';
+    const BUILD = '20261122-130453';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };
