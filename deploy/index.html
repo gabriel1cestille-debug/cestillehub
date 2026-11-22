@@ -57691,9 +57691,9 @@ return PreviewRarityAura;}
             }
         }
         const markMeta = {
-            wet: ['#4cd4ff', '💧'], frozen: ['#b8f6ff', '❄️'], chill: ['#7dd3fc', '❄️'],
+            wet: ['#4cd4ff', '💧'], frozen: ['#7eeeff', '💧'], chill: ['#7dd3fc', '💧'],
             root: ['#5cf078', '🌿'], resin: ['#fbbf24', '🌿'], burn: ['#ff7a3d', '🔥'],
-            crystal: ['#e078ff', '💎'], shock: ['#ffe14d', '⚡']
+            crystal: ['#e078ff', '💎'], shock: ['#fde047', '✨']
         };
         const mark = Object.keys(markMeta).find(k => e.elementMarks && e.elementMarks[k] && e.elementMarks[k].until > W.t);
         if (mark && !V.elementMark) {
@@ -64853,7 +64853,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-094109';
+    const BUILD = '20261122-094334';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };

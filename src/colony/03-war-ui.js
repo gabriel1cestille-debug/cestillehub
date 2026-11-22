@@ -4098,9 +4098,9 @@ return PreviewRarityAura;}
             }
         }
         const markMeta = {
-            wet: ['#4cd4ff', '💧'], frozen: ['#b8f6ff', '❄️'], chill: ['#7dd3fc', '❄️'],
+            wet: ['#4cd4ff', '💧'], frozen: ['#7eeeff', '💧'], chill: ['#7dd3fc', '💧'],
             root: ['#5cf078', '🌿'], resin: ['#fbbf24', '🌿'], burn: ['#ff7a3d', '🔥'],
-            crystal: ['#e078ff', '💎'], shock: ['#ffe14d', '⚡']
+            crystal: ['#e078ff', '💎'], shock: ['#fde047', '✨']
         };
         const mark = Object.keys(markMeta).find(k => e.elementMarks && e.elementMarks[k] && e.elementMarks[k].until > W.t);
         if (mark && !V.elementMark) {
