@@ -1381,7 +1381,7 @@
     }
     function clEnsureCardCss() {
         if (document.getElementById('cf-cards-css')) return;
-        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite48'; document.head.appendChild(l);
+        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite49'; document.head.appendChild(l);
     }
     function clArenaCardHTML(sp, lv, star, imgHtml, opts) {
         clEnsureCardCss(); opts = opts || {};
@@ -1409,7 +1409,7 @@
             + '<div class="cf-foil"></div>'
             + (opts.badge || '')
             + '<div class="cf-head"><div class="cf-crest-row">' + wings + '<span class="cf-crest"><small>NV</small>' + lv + '</span></div>' + (star > 0 ? '<span class="cf-top-stars">' + '★'.repeat(Math.min(5, star)) + '</span>' : '') + '</div>'
-            + '<div class="cf-stage">' + imgHtml + elOrb + '</div>'
+            + '<div class="cf-stage">' + imgHtml + elOrb + (opts.runes || '') + '</div>'
             + '<div class="cf-body">'
             + '<div class="cf-pills-row" style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span class="cf-rk-pill" style="margin-bottom:0">' + syms[rk] + ' ' + R.n + '</span>' + elPill + '</div>'
             + '<div class="cf-title">' + nm + '</div>'
@@ -1587,6 +1587,7 @@
                 + '<div class="dg-runes-col" title="Runas encaixadas">' + slots.join('') + '</div>'
                 + '</div>'
                 + '<div class="dg-stats-strip"><span style="color:#c4b5fd">⚡ <b>' + cost0 + '</b> Custo</span><span class="dg-sep">✦</span><span style="color:#86efac">❤ <b>' + hp0 + '</b> Vida</span><span class="dg-sep">✦</span><span style="color:#fdba74">⚔ <b>' + ak0 + '</b> Ataque</span><span class="dg-sep">✦</span><span>🎯 <b>' + rngN + '</b> Alcance</span>' + nextDelta + '</div>'
+                + (typeof warRuneSummaryHTML === 'function' ? warRuneSummaryHTML(a.id, sp.el) : '')
                 + reqStrip
                 + '<div class="dg-cta-row">'
                 + '<button type="button" class="dg-go" data-dg="up" data-id="' + a.id + '"' + (rdy ? '' : ' disabled') + '>' + (max ? '✦ NÍVEL MÁXIMO' : rdy ? '▲ SUBIR PARA NV. ' + (L + 1) : 'Faltam recursos') + '</button>'
@@ -2609,7 +2610,7 @@
                 const hpV = Math.round(warMaxHp(pk)), atkV = Math.round(warAttack(pk));
                 const statsHtml = '<div class="cf-stats"><div class="cf-st hp"><small>VIDA</small><b>' + hpV + '</b></div><div class="cf-st atk"><small>ATQ</small><b>' + atkV + '</b></div><div class="cf-st rng"><small>ALC</small><b>' + Math.round(kd.rg) + 'c</b></div></div>';
                 const badge = '<span class="wp2-ck">' + (on ? '✓' : '') + '</span>' + (classic ? '' : '<span class="wp2-cost">⚡ ' + warCardCost(pk) + '</span>');
-                return '<button type="button" class="wp2-card cf-wrap' + (on ? ' on' : '') + '" data-cl="zoo-war-tog" data-id="' + a.id + '" aria-pressed="' + on + '" style="--rc:' + R.col + '" title="' + esc(sp.n + ' (' + R.n + ' · ' + E.n + ')\nBásico: ' + mv[1][0] + '\nSupremo: ' + mv[2][0]) + '">' + clArenaCardHTML(sp, zAL(a), zStar(a), clArenaImg(a.sp, '', bud), { badge, sub: esc(role), foot: statsHtml }) + '</button>';
+                return '<button type="button" class="wp2-card cf-wrap' + (on ? ' on' : '') + '" data-cl="zoo-war-tog" data-id="' + a.id + '" aria-pressed="' + on + '" style="--rc:' + R.col + '" title="' + esc(sp.n + ' (' + R.n + ' · ' + E.n + ')\nBásico: ' + mv[1][0] + '\nSupremo: ' + mv[2][0]) + '">' + clArenaCardHTML(sp, zAL(a), zStar(a), clArenaImg(a.sp, '', bud), { badge, sub: esc(role), runes: warRuneDotsHTML(a.id, sp.el), foot: statsHtml }) + '</button>';
             } catch (er) { return ''; }
         }).join('') + '</div>'; }
         h += '</div><div class="wp-foot"><button type="button" id="wp-go-btn" class="wp-go" data-cl="zoo-war-go"' + (P.sel.length ? '' : ' disabled') + '><span id="wp-foot-txt" aria-live="polite">' + P.sel.length + '/' + P.max + '</span><span>' + (classic ? 'Usar dragão' : 'Defender') + '</span></button></div>';
@@ -5472,6 +5473,7 @@ return PreviewRarityAura;}
                 const inner = clArenaCardHTML(sp, lv, star, zImg(sp.id), {
                     badge: '<span class="wf-card-cost" aria-label="Custo de essência ' + cost + '"><b>⚡ ' + cost + '</b></span>',
                     sub: '<span class="wf-st-hp">❤ ' + hpV + '</span><span class="wf-st-atk">⚔ ' + atkV + '</span>',
+                    runes: inst ? warRuneDotsHTML(inst.id, sp.el) : '',
                     foot: '<span class="dk-field-badge"></span><div class="ported-essence-fill"></div><span class="dk-cooldown-label"></span><u class="dk-cooldown-mask"></u>'
                 });
                 return '<div class="dk-slot battle-cf rk-' + rk + '" data-species="' + sp.id + '" data-level="' + lv + '" data-stars="' + star + '" data-rk="' + rk + '" data-k="' + k + '">'
@@ -7275,6 +7277,35 @@ return PreviewRarityAura;}
     };
     function warAffRunesFor(el) {
         return Object.keys(WAR_RUNES).filter(t => WAR_RUNES[t].el === el).map(t => WAR_RUNES[t].n.replace(/^Runa d[aeo] /i, ''));
+    }
+    function warRuneDotsHTML(instId, el) {
+        try {
+            const eq = warEq(instId).filter(k => k && WAR_RUNES[k.split(':')[0]]);
+            if (!eq.length) return '';
+            const st = warRuneStats(instId, el);
+            const tipParts = Object.keys(st).filter(t => st[t] > 0).map(t => {
+                const R = WAR_RUNES[t], nm = R.n.replace(/^Runa d[aeo] /i, '');
+                return nm + ' +' + Math.round(st[t] * 1000) / 10 + '%';
+            });
+            const dots = eq.slice(0, 3).map(k => {
+                const tp = k.split(':')[0], tr = +k.split(':')[1] || 0, R = WAR_RUNES[tp];
+                return '<span class="cf-rune-dot" style="--rc:' + R.col + '">' + warRuneImg(tp, 16, tr) + '</span>';
+            }).join('');
+            return '<div class="cf-runes-row" title="Runas: ' + esc(tipParts.join(' · ')) + '">' + dots + '</div>';
+        } catch (e) { return ''; }
+    }
+    function warRuneSummaryHTML(instId, el) {
+        try {
+            const st = warRuneStats(instId, el);
+            const parts = Object.keys(st).filter(t => st[t] > 0).map(t => {
+                const R = WAR_RUNES[t], nm = R.n.replace(/^Runa d[aeo] /i, ''), pct = Math.round(st[t] * 1000) / 10;
+                const cap = WAR_RUNE_CAP[t] || 30, atCap = pct >= cap;
+                return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid ' + R.col + ';color:' + R.col + ';font-size:11px;font-weight:900">'
+                    + warRuneImg(t, 15) + nm + ' +' + pct + '%' + (atCap ? ' (MÁX)' : '') + '</span>';
+            });
+            if (!parts.length) return '';
+            return '<div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:4px"><small style="font-size:10px;font-weight:900;letter-spacing:.08em;color:#d6cbb8">RUNAS:</small>' + parts.join('') + '</div>';
+        } catch (e) { return ''; }
     }
     function warRuneImg(type, px, tier) {
         const tc = tier != null ? (' tier-' + (tier | 0)) : '';

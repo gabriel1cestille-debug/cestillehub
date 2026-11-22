@@ -1066,6 +1066,28 @@ html body .wfg-dc.cf-wrap .sls { position: relative; z-index: 9; display: flex; 
   box-shadow: 0 2px 8px rgba(0,0,0,.78), 0 0 10px color-mix(in srgb, var(--el-c, #fbbf24) 52%, transparent);
   pointer-events: none;
 }
+.cf-runes-row {
+  position: absolute; right: 5px; bottom: 5px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 4px; border-radius: 999px;
+  background: rgba(8, 5, 14, .86);
+  border: 1px solid rgba(218, 174, 86, .48);
+  box-shadow: 0 2px 7px rgba(0,0,0,.75);
+  pointer-events: auto;
+}
+.cf-rune-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle, color-mix(in srgb, var(--rc, #fbbf24) 35%, #120c1a), #0b0812 80%);
+  border: 1px solid var(--rc, #fbbf24);
+}
+.cf-rune-dot img {
+  position: static !important; inset: auto !important;
+  width: 14px !important; height: 14px !important;
+  object-fit: contain !important;
+  -webkit-mask-image: none !important; mask-image: none !important;
+  transform: none !important;
+}
 .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf {
   flex: 0 0 132px !important;
   width: 132px !important;
