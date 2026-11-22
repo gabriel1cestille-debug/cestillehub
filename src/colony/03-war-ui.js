@@ -3232,7 +3232,7 @@
         crono_engenheiro: { id: 'crono_engenheiro', c1: '#f59e0b', c2: '#c084fc', elem: 'Cristal', glb: 'crono_engenheiro', fieldScale: 1.08, morph: { crownTall: 1.28, wingSpan: 1.24, splineAnatomy: 'royal_seraph_ribbons' }, skin: { pattern: 'ruby_facets', belly: '#fef3c7', back: '#3b0764', veins: '#e879f9', glow: 0.78 }, atk1: { style: 'prism_refraction_laser' }, atk2: { style: 'aurora_veil_barrage' } }
     };
     const WAR_SHIFT_X = { demonio_cinzas: -0.205 };   /* fração do tamanho; negativo = para trás (longe dos inimigos) */
-    const WAR_SIZE_OVR = { morcego: 0.86, demonio_cinzas: 1.8 };   /* tamanho na batalha: o Morcego estava grande demais e o Demônio das Cinzas pequeno demais (pedido do Gabriel, 2026-11-20) */
+    const WAR_SIZE_OVR = { morcego: 0.86, demonio_cinzas: 1.35 };   /* 2026-11-22: Demônio das Cinzas calibrado em 1.35 (1.8 deixava e.span=4.5 e a barra voando lá no alto) */
     function warPvSpec(sp) {
         const PV = window.PreviewAll30Dragons;
         const rkScale = 0.88 + (sp.rk | 0) * 0.065;
@@ -3805,7 +3805,7 @@ return PreviewRarityAura;}
             }
         }
         const p = e.holder.position, wd = e.span * 0.9; e.blob.position.set(p.x, 0.04, p.z); e.blob.scale.set(wd * 1.1, wd * 0.7, 1); e.blob.material.opacity = Math.max(0.15, 0.62 - e.visual.position.y * 0.12) * (1 - e.dead);
-        const hpF = Math.max(0, d.hp / d.mx), sF = Math.min(1, Math.max(0, (d.sup || 0) / 100)), show = !e.dead, showS = !e.dead, bx = p.x - 0.68, by = 1.65 + (e.span - 1.4) * 0.65;
+        const hpF = Math.max(0, d.hp / d.mx), sF = Math.min(1, Math.max(0, (d.sup || 0) / 100)), show = !e.dead, showS = !e.dead, bx = p.x - 0.68, by = Math.min(2.35, 1.58 + Math.max(0, e.span - 1.5) * 0.38);
         warBarStep(e.hp,hpF,dt,bx,by,p.z,show,.13);
         e.hp.fg.material.color.set(hpF>.5?'#66e7a6':hpF>.25?'#ffc569':'#ff657b');
         warBarStep(e.sup,sF,dt,bx+.06,by-.2,p.z,showS,.085);
