@@ -7259,13 +7259,16 @@ return PreviewRarityAura;}
             + '</div>';
     }
     const WAR_RUNE_TIPS = {
-        vida:  { short: '+Vida máxima', best: '🛡️ Tanques e Linha de Frente', tip: 'Aumenta muito a resistência do dragão. Equipe em dragões de 🌿 Terra para ganhar +25% de afinidade extra!' },
-        furia: { short: '+Dano de ataque', best: '🔥 Atacantes e Mago/Área', tip: 'Turbina o dano de todos os golpes e especiais. Dragões de 🔥 Fogo ganham +25% de bônus nessa runa!' },
-        gelo:  { short: '❄️ Congela em 3D', best: '🎯 Atiradores e Controle', tip: 'Prende inimigos num bloco de gelo 3D e prepara o combo Quebra-Gelo! Dragões de 💧 Água ganham +25%!' },
-        brasa: { short: '🔥 Queimadura contínua', best: '⚡ Ataque rápido e Área', tip: 'Incendeia os inimigos com dano contínuo em chamas 3D. Excelente contra chefes com muita vida!' },
-        raio:  { short: '⚡ Atordoa (1,5s)', best: '🎯 Atiradores e Suporte', tip: 'Dá choque elétrico 3D que interrompe o avanço de chefes e inimigos rápidos. 💎 Cristal ganha +25%!' },
-        sorte: { short: '🍀 +Essência das esferas', best: '💎 Qualquer dragão barato', tip: 'Cada esfera coletada rende mais essência para invocar dragões mais rápido. Ótima no início da luta!' }
+        vida:  { short: '+Vida máxima', best: '🛡️ Tanques e Linha de Frente', tip: 'Aumenta a resistência do dragão. Dragões de 🌿 Terra ganham +25% de afinidade! Runas iguais somam até o teto de 30%.' },
+        furia: { short: '+Dano de ataque', best: '✨ Atacantes e Área', tip: 'Turbina o dano de todos os golpes e especiais. Dragões ✨ Estelares ganham +25% de afinidade! Runas iguais somam até o teto de 30%.' },
+        gelo:  { short: '❄️ Congela em 3D', best: '🎯 Atiradores e Controle', tip: 'Prende inimigos em gelo 3D e prepara Quebra-Gelo. Dragões de 💧 Água ganham +25% de afinidade! Runas iguais somam até o teto de 40%.' },
+        brasa: { short: '🔥 Queimadura contínua', best: '⚡ Ataque rápido e Área', tip: 'Incendeia inimigos com dano contínuo. Dragões ✨ Estelares ganham +25% de afinidade! Runas iguais somam até o teto de 40%.' },
+        raio:  { short: '⚡ Atordoa (1,5s)', best: '🎯 Atiradores e Suporte', tip: 'Choque elétrico que interrompe chefes e rápidos. Dragões de 💎 Cristal ganham +25% de afinidade! Runas iguais somam até o teto de 40%.' },
+        sorte: { short: '🍀 +Essência das esferas', best: '💧 Qualquer dragão barato', tip: 'Rende mais essência por esfera coletada. Dragões de 💧 Água ganham +25% de afinidade! Runas iguais somam até o teto de 30%.' }
     };
+    function warAffRunesFor(el) {
+        return Object.keys(WAR_RUNES).filter(t => WAR_RUNES[t].el === el).map(t => WAR_RUNES[t].n.replace(/^Runa d[aeo] /i, ''));
+    }
     function warRuneImg(type, px, tier) {
         const tc = tier != null ? (' tier-' + (tier | 0)) : '';
         return '<img class="wfg-rimg' + tc + '" src="./assets/colony/rune_' + type + '.png?v=2" alt="" style="width:' + (px || 36) + 'px;height:' + (px || 36) + 'px">';
@@ -7283,26 +7286,30 @@ return PreviewRarityAura;}
             + '<span class="wfg-lv">' + warCoinSvg(15) + ' ' + Math.floor(+L.gold || 0).toLocaleString('pt-BR') + '</span>'
             + '</header>'
             + '<div class="wfg-body wfg-eq">' + warForgeModes('equip')
-            + '<div class="wfg-tipbar" style="--tc:#fbbf24"><span class="wfg-tip-ic">💡</span><div><strong>Como equipar:</strong> 1. Toque num engaste metálico (<b>+</b>) embaixo do dragão · 2. Escolha a pedra de runa. <strong>Dica:</strong> runa do <b>mesmo elemento</b> do dragão rende <b>+25% de força</b>!</div></div>'
+            + '<div class="wfg-tipbar" style="--tc:#fbbf24"><span class="wfg-tip-ic">💡</span><div><strong>Regras de Runas & Afinidade:</strong> Runas do <b>mesmo elemento</b> do dragão ganham <b>+25% cada</b>. <b>Runas iguais somam</b> até o teto de <b>30%</b> (Vida, Fúria, Sorte) ou <b>40%</b> (Gelo, Brasa, Raio) por dragão — o que passar do teto não conta.</div></div>'
             + '<div class="wfg-bagbar"><span class="wfg-bagbar-t">🎒 Mochila:</span>' + bagStrip + '</div>';
         const ad = warAdults(), ls = ZOO._lastSocket, nowMs = Date.now();
         if (!ad.length) h += '<p class="wfg-note">Nenhum dragão adulto ainda. Choque ovos na 🥚 Incubadora!</p>';
         h += '<div class="wfg-dg">' + ad.map(a => {
             const sp = zsp(a.sp), n = warSlotsFor(a.star), eq = warEq(a.id);
+            const affList = warAffRunesFor(sp.el);
+            const affHtml = affList.length ? '<div style="font-size:9.5px;font-weight:800;color:#fde68a;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.32);border-radius:6px;padding:2px 5px;margin-bottom:4px;line-height:1.2">✦ +25%: ' + affList.join(', ') + '</div>' : '';
             let sl = ''; for (let i = 0; i < 3; i++) {
                 if (i >= n) { sl += '<span class="wfg-sl lock" title="Funda cópias (★) nos Dragões para liberar este engaste"><i class="ph-bold ph-lock-simple"></i></span>'; continue; }
                 const key = eq[i], rType = key ? key.split(':')[0] : '', R = rType ? WAR_RUNES[rType] : null, on = P && P.id === a.id && P.slot === i;
                 const slammed = !!(key && ls && ls.id === a.id && ls.slot === i && (nowMs - ls.at) < 1200);
                 sl += '<button type="button" class="wfg-sl' + (key ? ' full' : '') + (on ? ' on' : '') + (slammed ? ' slammed' : '') + '" style="--tc:' + (R ? R.col : '#fff') + '" data-cl="zoo-eq-slot" data-id="' + a.id + '" data-slot="' + i + '">' + (R ? warRuneImg(rType, 34) + '<em>' + ['I', 'II', 'III'][+key.split(':')[1]] + '</em>' : '<i class="ph-bold ph-plus" style="color:#d4b06a"></i>') + '</button>';
             }
-            return '<div class="wfg-dc cf-wrap">' + clArenaCardHTML(sp, zAL(a), Math.max(0, a.star | 0), zImg(a.sp, ''), { foot: '<div class="sls">' + sl + '</div>' }) + '</div>';
+            return '<div class="wfg-dc cf-wrap">' + clArenaCardHTML(sp, zAL(a), Math.max(0, a.star | 0), zImg(a.sp, ''), { foot: affHtml + '<div class="sls">' + sl + '</div>' }) + '</div>';
         }).join('') + '</div>';
         if (P) {
-            const a = ad.find(x => x.id === P.id), spA = a ? zsp(a.sp) : null;
-            const curKey = warEq(P.id)[P.slot] || '', ct = curKey ? curKey.split(':') : null, curR = ct ? WAR_RUNES[ct[0]] : null;
-            h += '<div class="wfg-sheet"><div class="wfg-sh"><b>' + (spA ? esc(spA.n) + ' · ' : '') + 'Engaste ' + (P.slot + 1) + '</b><button type="button" class="wfg-x sm" data-cl="zoo-eq-close" aria-label="Fechar"><i class="ph-bold ph-x"></i></button></div>';
+            const a = ad.find(x => x.id === P.id), spA = a ? zsp(a.sp) : null, elA = (a && a.el) || (spA && spA.el) || '';
+            const affA = warAffRunesFor(elA);
+            const eqA = warEq(P.id);
+            const curKey = eqA[P.slot] || '', ct = curKey ? curKey.split(':') : null, curR = ct ? WAR_RUNES[ct[0]] : null;
+            h += '<div class="wfg-sheet"><div class="wfg-sh"><div><b>' + (spA ? esc(spA.n) + ' · ' : '') + 'Engaste ' + (P.slot + 1) + '</b>' + (affA.length ? '<small style="display:block;font-size:11.5px;color:#fde68a;font-weight:800;margin-top:2px">✦ Afinidade +25%: ' + affA.join(', ') + ' · Runas iguais somam até o teto (30% / 40%)</small>' : '') + '</div><button type="button" class="wfg-x sm" data-cl="zoo-eq-close" aria-label="Fechar"><i class="ph-bold ph-x"></i></button></div>';
             if (curKey && curR) {
-                const curTier = +ct[1] | 0, curPc = a ? warRunePct(curKey, a.el || (spA && spA.el)) : curR.pct[curTier], curBonus = spA && curR.el === spA.el;
+                const curTier = +ct[1] | 0, curPc = a ? warRunePct(curKey, elA) : curR.pct[curTier], curBonus = spA && curR.el === elA;
                 h += '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:radial-gradient(circle at 0% 50%,color-mix(in srgb,' + curR.col + ' 26%,transparent),transparent 65%),rgba(0,0,0,.46);border:1.5px solid ' + curR.col + '">'
                     + warRuneImg(ct[0], 44, curTier)
                     + '<div style="flex:1;min-width:0"><small style="display:block;font-size:10px;letter-spacing:.1em;font-weight:900;color:' + curR.col + '">✦ ENGASTADA AGORA</small>'
@@ -7312,7 +7319,19 @@ return PreviewRarityAura;}
                     + '</div>';
             }
             if (!bagKeys.length) h += '<p class="wfg-note">Você ainda não tem pedras livres na mochila. Forje na aba Forjar & Fundir!</p>';
-            h += bagKeys.map(k => { const t = k.split(':'), R = WAR_RUNES[t[0]], pc = a ? warRunePct(k, a.el || spA.el) : R.pct[+t[1]], bonus = spA && R.el === spA.el; return '<button type="button" class="wfg-rl" style="--tc:' + R.col + '" data-cl="zoo-eq-do" data-id="' + P.id + '" data-slot="' + P.slot + '" data-key="' + k + '">' + warRuneImg(t[0], 38, +t[1]) + '<span><b>' + R.n + ' · ' + WAR_RUNE_TIER[+t[1]] + (bonus ? ' <span style="padding:1px 6px;border-radius:999px;background:#fbbf24;color:#231002;font-size:10px;font-weight:900">+25% AFINIDADE</span>' : '') + '</b><small>' + R.eff(Math.round(pc * 10) / 10) + '</small></span><em>×' + L.runes[k] + '</em></button>'; }).join('');
+            h += bagKeys.map(k => {
+                const t = k.split(':'), rType = t[0], R = WAR_RUNES[rType], pc = a ? warRunePct(k, elA) : R.pct[+t[1]], bonus = spA && R.el === elA;
+                const cap = WAR_RUNE_CAP[rType] || 30;
+                let otherSum = 0;
+                eqA.forEach((ek, idx) => { if (idx !== P.slot && ek && ek.split(':')[0] === rType) otherSum += warRunePct(ek, elA); });
+                const rawTot = otherSum + pc, effTot = Math.min(cap, rawTot), over = rawTot - cap;
+                const stackInfo = otherSum > 0
+                    ? (over > 0.05
+                        ? ' · <span style="color:#fbbf24;font-weight:800">⚠️ Total: ' + Math.round(effTot * 10) / 10 + '% / ' + cap + '% (sobra ' + Math.round(over * 10) / 10 + '% perdida no teto)</span>'
+                        : ' · <span style="color:#86efac;font-weight:800">Total somado: ' + Math.round(effTot * 10) / 10 + '% / ' + cap + '%</span>')
+                    : ' · <span style="opacity:.78">Teto: ' + cap + '%</span>';
+                return '<button type="button" class="wfg-rl" style="--tc:' + R.col + '" data-cl="zoo-eq-do" data-id="' + P.id + '" data-slot="' + P.slot + '" data-key="' + k + '">' + warRuneImg(rType, 38, +t[1]) + '<span><b>' + R.n + ' · ' + WAR_RUNE_TIER[+t[1]] + (bonus ? ' <span style="padding:1px 6px;border-radius:999px;background:#fbbf24;color:#231002;font-size:10px;font-weight:900">+25% AFINIDADE</span>' : '') + '</b><small>' + R.eff(Math.round(pc * 10) / 10) + stackInfo + '</small></span><em>×' + L.runes[k] + '</em></button>';
+            }).join('');
             h += '</div>';
         }
         return h + '</div>';
@@ -7357,7 +7376,7 @@ return PreviewRarityAura;}
             }).join('')
             + '</div>'
             + '<div class="wfg-anvil-spot' + (forgedNow ? ' forged' : '') + '">'
-            + '<div class="wfg-title-float"><h3>' + esc(R.n) + ' · <span style="color:' + tierCols[k] + '">' + WAR_RUNE_TIER[k] + '</span></h3><p>' + esc(R.eff(R.pct[k])) + ' <span>· ⚡ ' + esc(elNm) + ' +25% (' + Math.round(R.pct[k] * 1.25 * 10) / 10 + '%)</span></p></div>'
+            + '<div class="wfg-title-float"><h3>' + esc(R.n) + ' · <span style="color:' + tierCols[k] + '">' + WAR_RUNE_TIER[k] + '</span></h3><p>' + esc(R.eff(R.pct[k])) + ' <span>· ⚡ ' + esc(elNm) + ' +25% (' + Math.round(R.pct[k] * 1.25 * 10) / 10 + '%) · Teto: ' + (WAR_RUNE_CAP[sel] || 30) + '%</span></p></div>'
             + '<div class="wfg-levitate tier-' + k + '"><div class="wfg-light"></div><div class="wfg-light2"></div>' + warRuneImg(sel, 114, k) + '</div>'
             + '</div>'
             + '<div class="wfg-base-dock">'
