@@ -1,0 +1,52 @@
+# Local / heavy / scratch / internal workspace files (not published to GitHub)
+.DS_Store
+.wrangler/
+node_modules/
+session-export-*/
+Contribuições Gabriel/
+modelos-originais/
+node-v*.pkg
+prototipos/
+prototipo-expansao/
+scratch/
+saidas/
+Backup cestille/
+cestille-bot/
+obsidian-plugin/
+obsidian-theme/
+
+# Internal docs, AI configs & local scratch scripts
+.agents/
+.claude/
+.impeccable/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+CONTEXTO-PARA-NOVA-CONVERSA.md
+historico-conversa.md
+skills-lock.json
+NUVEM-DA-FLAVIA.md
+recuperado-notas-*.json
+ANALISE-*.md
+BASE-DE-EQUILIBRIO.md
+CORRECAO-*.md
+ECONOMIA-*.md
+GUIA-*.md
+PLANO-*.md
+POMODORO-*.md
+PRODUCT.md
+PUSH.md
+RELATORIO-*.md
+RELE-CLOUDFLARE.md
+REVISAO-CONSTRUCOES.md
+SEGURANCA.md
+inspect_*.py
+scratch_*.py
+prototipo-estilo-covil.html
+vila-completa.html
+Cestille-Hub.html
+Cestille-Hub.backup-*.html
+*.backup-*.html
+**/*.backup-*.html
+/*.webp
+/*.jpg

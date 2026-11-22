@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Só você (primeiro ID) e o bot do Telegram (segundo ID) leem e gravam o hub.
+    match /workspaces/cestille_hub {
+      allow read, write: if request.auth != null
+        && request.auth.uid in ['k0rq9QyD37QUoGD2kacrcyX7b523', 'cN6NO6Mt4IV8hAhGSBblG8I30B93'];
+    }
+    // O Cronograma antigo da sua namorada ainda grava aqui sem login. Mantido para ele não quebrar.
+    // Quando ela passar a usar só o universo rosa, apague este bloco (veja SEGURANCA.md).
+    match /workspaces/{doc} {
+      allow read, write: if doc in ['cronograma_hub', 'cronograma_hub_mari'];
+    }
+    // Cada pessoa com conta (a sua namorada, por exemplo) lê e grava o próprio universo.
+    // O dono (primeiro ID) também pode LER o dos visitantes, para visitá-los mesmo offline. Ele nunca grava neles.
+    match /users/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.uid == 'k0rq9QyD37QUoGD2kacrcyX7b523');
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Cópia do universo do dono (só nomes, cores e datas; nenhuma nota): o dono grava, quem tem conta só lê. É o que deixa a namorada visitar mesmo com ele offline.
+    match /shared/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid && uid == 'k0rq9QyD37QUoGD2kacrcyX7b523';
+    }
+    // Quem está online: cada pessoa logada grava só o próprio aviso (nome e hora); qualquer pessoa logada pode ler.
+    match /presence/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Avisos push agendados (fim do Pomodoro): cada pessoa cria os próprios; só ela e o bot (segundo ID) leem e apagam.
+    match /pushjobs/{id} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource.data.uid == request.auth.uid || request.auth.uid == 'cN6NO6Mt4IV8hAhGSBblG8I30B93');
+      allow update: if false;
+    }
+    // Inscrição de push de cada aparelho: cada pessoa grava só a própria; qualquer pessoa logada lê, para poder mandar um aviso (ex.: "versão nova"). A inscrição sozinha não envia nada: precisa da chave privada do Worker.
+    match /pushsubs/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Versões da colônia guardadas à parte (histórico): cada pessoa grava e lê só as próprias (o id começa com o uid).
+    match /colonyhist/{id} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create, update: if request.auth != null && request.resource.data.uid == request.auth.uid && id.matches(request.auth.uid + '_.*');
+      allow delete: if false;
+    }
+    // Quadro de bugs dos dois: um chat compartilhado. Qualquer pessoa logada lê e relata; cada um apaga os próprios; o dono (primeiro ID) marca como resolvido e apaga qualquer um.
+    match /bugs/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
+      allow update: if request.auth != null && request.auth.uid == 'k0rq9QyD37QUoGD2kacrcyX7b523'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['done']);
+      allow delete: if request.auth != null && (resource.data.by == request.auth.uid || request.auth.uid == 'k0rq9QyD37QUoGD2kacrcyX7b523');
+    }
+    // A sala de vocês dois: presença online, cópia só-leitura do universo e avisos de visita.
+    // Cada um escreve só nos próprios documentos: quem visita não consegue alterar nada do outro.
+    function isMember(room) {
+      return request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/rooms/$(room)).data.members;
+    }
+    match /rooms/{room} {
+      allow create: if request.auth != null
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.members.size() == 2
+        && request.auth.uid in request.resource.data.members;
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+      match /presence/{uid} {
+        allow read: if isMember(room);
+        allow write: if isMember(room) && request.auth.uid == uid;
+      }
+      match /universes/{uid} {
+        allow read: if isMember(room);
+        allow write: if isMember(room) && request.auth.uid == uid;
+      }
+      match /events/{id} {
+        allow read: if isMember(room);
+        allow create: if isMember(room) && request.resource.data.by == request.auth.uid;
+      }
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

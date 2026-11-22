@@ -1,0 +1,14 @@
+Modelos dos chefes da Fronteira Alem (fases 26-40 e Horda Infinita):
+- invocador.glb  = "Wizard"  (Ultimate Monsters Bundle)
+- saltitante.glb = "Frog"    (Ultimate Monsters Bundle)
+- devorador.glb  = "Demon"   (Ultimate Monsters Bundle)
+Autor: Quaternius (https://quaternius.com). Licenca: CC0 (dominio publico), conforme a pagina de cada modelo no Poly Pizza:
+  https://poly.pizza/m/o87Upt5uHX  https://poly.pizza/m/37wofOCOzG  https://poly.pizza/m/Mo2ky6vkf8
+Baixados em 2026-11-17. Credito nao e obrigatorio.
+
+Chefes das regioes 1-5 (fases 5, 10, 15, 20 e 25), baixados em 2026-11-18 do Poly Pizza (autor Quaternius, CC0, dominio publico):
+- colosso.glb = "Goleling Evolved"  https://poly.pizza/m/iHEuXiH6Aj
+- geada.glb   = "Yeti"              https://poly.pizza/m/S1E7idPFhe
+- mata.glb    = "Orc"               https://poly.pizza/m/5vO2YJsPEf
+- magma.glb   = "Giant"             https://poly.pizza/m/BldaiPtyJa
+- vazio.glb   = "Skeleton"          https://poly.pizza/m/DM4QScSmbS
