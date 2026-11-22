@@ -5542,7 +5542,7 @@ return PreviewRarityAura;}
             sc.fog = new T.FogExp2(0x100509, 0.016);
             let pmrem = null;
             if (window.VolcanicMap3D && VolcanicMap3D.buildVolcanicPMREM) { try { pmrem = VolcanicMap3D.buildVolcanicPMREM(r); if (pmrem) sc.environment = pmrem; } catch (e) {} }
-            Object.assign(WARV, { on: true, box, cv, r, sc, cam, pmrem, rvfx: null, W: null, t: 0, pp: [], pool: [], tw: [], qv: [], ev: new Map(), ents: [], orbs: new Map(), fires: [], streams: [], shake: 0, nums: 0, end: null, white: new T.Color('#ffffff'), paused: false, sel: 0, cardExpanded: false, shovel: false, dockCollapsed: false, autoHide: false, reducedFx: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches), selectedDrag: null, dynamicFlashes: [], tileMeshes: [], hoverCursor: null, env: null, mapFX: null, battleFX: null, fxGroup: null, camTarget: new T.Vector3(0.4, 0.35, 0.55), camSpherical: new T.Spherical(21, 0.88, 0), S, picks, fps: 0, acc: 0, pixelRatioCap, perfAvg: 0, perfCheckAt: 0 });
+            Object.assign(WARV, { on: true, box, cv, r, sc, cam, pmrem, rvfx: null, W: null, t: 0, pp: [], pool: [], tw: [], qv: [], ev: new Map(), ents: [], orbs: new Map(), fires: [], streams: [], shake: 0, nums: 0, end: null, white: new T.Color('#ffffff'), paused: false, sel: 0, cardExpanded: false, shovel: false, dockCollapsed: false, autoHide: false, reducedFx: (function () { try { return localStorage.getItem('cestille_war_rfx') === '1'; } catch (e) { return false; } })(), selectedDrag: null, dynamicFlashes: [], tileMeshes: [], hoverCursor: null, env: null, mapFX: null, battleFX: null, fxGroup: null, camTarget: new T.Vector3(0.4, 0.35, 0.55), camSpherical: new T.Spherical(21, 0.88, 0), S, picks, fps: 0, acc: 0, pixelRatioCap, perfAvg: 0, perfCheckAt: 0 });
             WARV._userZoomed = false;
             WARV.elementalFx=window.ElementalFX ? new window.ElementalFX(sc) : null;
             WARV.W = warNew(S, picks, (n, a) => { try { warFxEv(n, a); } catch (er) { if (!WARV.er) { WARV.er = 1; console.warn('war fx', n, er && er.stack || er); } } });
@@ -6491,7 +6491,7 @@ return PreviewRarityAura;}
                 if (V.rangeG) V.rangeG.visible = false;
                 warHud(true);
             }
-            else if(w==='effects'){V.reducedFx=!V.reducedFx;V.box.classList.toggle('fx-reduced',V.reducedFx);t.textContent=V.reducedFx?'◌':'✨';t.setAttribute('aria-pressed',String(V.reducedFx));warMsg(V.reducedFx?'Efeitos reduzidos e tremor desligado.':'Efeitos completos.');}
+            else if(w==='effects'){V.reducedFx=!V.reducedFx;try{localStorage.setItem('cestille_war_rfx',V.reducedFx?'1':'0');}catch(e){}V.box.classList.toggle('fx-reduced',V.reducedFx);t.textContent=V.reducedFx?'◌':'✨';t.setAttribute('aria-pressed',String(V.reducedFx));warMsg(V.reducedFx?'Efeitos reduzidos e tremor desligado.':'Efeitos completos.');}
             else if (w === 'mute') { V.muted = !V.muted; try { if (window.EpicMusic) window.EpicMusic.setMuted(V.muted); } catch (e) {} if (!V.muted) { warSfxUnlock(); warHitSfx({ kind: 'melee', strong: true, el: 'fogo' }, null); } t.textContent = V.muted ? '🔇' : '🔊'; warMsg(V.muted ? 'Som da batalha silenciado.' : 'Som da batalha ativado.'); }
             else if (w === 'speed') { W.spd = W.spd === 1 ? 1.5 : W.spd === 1.5 ? 2 : 1; t.textContent = 'x' + W.spd; }
             else if (w === 'pause') { clearPlacement(); V.paused = !V.paused; box.querySelector('.wf-pause').style.display = V.paused ? 'flex' : 'none'; V.last = 0; }
