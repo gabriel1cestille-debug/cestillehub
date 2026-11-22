@@ -378,15 +378,19 @@
         board[who.key] = me;
         try { localStorage.setItem('CESTILLE_ARENA_BOARD_V1', JSON.stringify(board)); } catch (e) {}
         try {
-            if (typeof firebase !== 'undefined' && firebase.firestore) {
-                const ref = firebase.firestore().collection('workspaces').doc('cestille_arena_board');
-                await ref.set({ [who.key]: me }, { merge: true }).catch(() => {});
+            const uid = (window.ruaAuth && window.ruaAuth.state && window.ruaAuth.state().uid) || '';
+            if (uid && typeof firebase !== 'undefined' && firebase.firestore) {
+                const col = firebase.firestore().collection('presence');
+                await col.doc(uid).set({ arenaBoardKey: who.key, arenaBoard: me }, { merge: true }).catch(() => {});
                 if (readAlso) {
-                    const snap = await ref.get().catch(() => null);
-                    if (snap && snap.exists) {
-                        const data = snap.data() || {};
-                        if (data.gabriel) board.gabriel = data.gabriel;
-                        if (data.flavia) board.flavia = data.flavia;
+                    const qs = await col.get().catch(() => null);
+                    if (qs && qs.docs) {
+                        qs.docs.forEach(doc => {
+                            const d = doc.data() || {};
+                            if (d.arenaBoard && (d.arenaBoardKey === 'gabriel' || d.arenaBoardKey === 'flavia')) {
+                                board[d.arenaBoardKey] = d.arenaBoard;
+                            }
+                        });
                         board[who.key] = me;
                         try { localStorage.setItem('CESTILLE_ARENA_BOARD_V1', JSON.stringify(board)); } catch (e) {}
                     }

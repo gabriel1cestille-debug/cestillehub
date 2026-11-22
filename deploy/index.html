@@ -53973,15 +53973,19 @@ function castleMoat(parent) {   /* fosso de água em volta da muralha, com ponte
         board[who.key] = me;
         try { localStorage.setItem('CESTILLE_ARENA_BOARD_V1', JSON.stringify(board)); } catch (e) {}
         try {
-            if (typeof firebase !== 'undefined' && firebase.firestore) {
-                const ref = firebase.firestore().collection('workspaces').doc('cestille_arena_board');
-                await ref.set({ [who.key]: me }, { merge: true }).catch(() => {});
+            const uid = (window.ruaAuth && window.ruaAuth.state && window.ruaAuth.state().uid) || '';
+            if (uid && typeof firebase !== 'undefined' && firebase.firestore) {
+                const col = firebase.firestore().collection('presence');
+                await col.doc(uid).set({ arenaBoardKey: who.key, arenaBoard: me }, { merge: true }).catch(() => {});
                 if (readAlso) {
-                    const snap = await ref.get().catch(() => null);
-                    if (snap && snap.exists) {
-                        const data = snap.data() || {};
-                        if (data.gabriel) board.gabriel = data.gabriel;
-                        if (data.flavia) board.flavia = data.flavia;
+                    const qs = await col.get().catch(() => null);
+                    if (qs && qs.docs) {
+                        qs.docs.forEach(doc => {
+                            const d = doc.data() || {};
+                            if (d.arenaBoard && (d.arenaBoardKey === 'gabriel' || d.arenaBoardKey === 'flavia')) {
+                                board[d.arenaBoardKey] = d.arenaBoard;
+                            }
+                        });
                         board[who.key] = me;
                         try { localStorage.setItem('CESTILLE_ARENA_BOARD_V1', JSON.stringify(board)); } catch (e) {}
                     }
@@ -65682,7 +65686,7 @@ el.innerHTML = `<div class="rc-in"><h1>${_hubTitle}</h1><p class="rc-s">Same sit
 /* AVISO DE VERSÃO NOVA: cada publicação carimba o site com um número (e grava o mesmo número em version.json).
    Quem está com a página aberta numa versão mais velha vê um aviso para atualizar. Nada recarrega sozinho: o Pomodoro e os jogos não são interrompidos. */
 (function () {
-    const BUILD = '20261122-150803';
+    const BUILD = '20261122-151100';
     window.__ruaBuild = BUILD;
     if (BUILD.indexOf('__') === 0) return;   // cópia de desenvolvimento (sem carimbo): não há o que comparar
     const S = { shown: false, hideUntil: 0, busy: false, auto: false, hiddenAt: 0 };
