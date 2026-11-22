@@ -1368,7 +1368,7 @@
     }
     function clEnsureCardCss() {
         if (document.getElementById('cf-cards-css')) return;
-        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite47'; document.head.appendChild(l);
+        const l = document.createElement('link'); l.id = 'cf-cards-css'; l.rel = 'stylesheet'; l.href = './assets/colony/dragon_cards.css?v=lite48'; document.head.appendChild(l);
     }
     function clArenaCardHTML(sp, lv, star, imgHtml, opts) {
         clEnsureCardCss(); opts = opts || {};
@@ -1378,6 +1378,7 @@
         const elMeta = { terra: ['🌿', 'Terra'], agua: ['💧', 'Água'], cristal: ['💎', 'Cristal'], estelar: ['✨', 'Estelar'], fogo: ['🔥', 'Fogo'] };
         const elKey = (sp && sp.el) || '', elCol = elCols[elKey] || R.col || '#fbbf24', elM = elMeta[elKey];
         const elPill = elM ? '<span class="cf-el-pill" style="display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:900;letter-spacing:.25px;padding:2px 7px;border-radius:999px;background:rgba(8,6,14,.86);border:1.5px solid ' + elCol + ';color:' + elCol + ';box-shadow:0 1px 4px rgba(0,0,0,.7)">' + elM[0] + ' ' + elM[1] + '</span>' : '';
+        const elOrb = elM ? '<span class="cf-el-orb" title="' + elM[1] + '" style="--el-c:' + elCol + '">' + elM[0] + '</span>' : '';
         const nm = esc(((sp && sp.n) || '').replace(/^Dragão[- ](?:d[aeo]s? )?/, '') || ((sp && sp.n) || ''));
         const wings = rk === 1 ? '<svg class="cf-wings" viewBox="0 0 146 38" aria-hidden="true"><path d="M40 20 L26 16 L34 25 L44 25 Z M106 20 L120 16 L112 25 L102 25 Z" fill="#059669" stroke="#a7f3d0" stroke-width="1.2"/></svg>'
             : rk === 2 ? '<svg class="cf-wings" viewBox="0 0 146 38" aria-hidden="true"><path d="M38 18 L14 10 L26 23 L42 25 Z M108 18 L132 10 L120 23 L104 25 Z" fill="#0284c7" stroke="#bae6fd" stroke-width="1.4"/><polygon points="73,2 78,8 73,12 68,8" fill="#7dd3fc" stroke="#fff" stroke-width=".8"/></svg>'
@@ -1395,9 +1396,9 @@
             + '<div class="cf-foil"></div>'
             + (opts.badge || '')
             + '<div class="cf-head"><div class="cf-crest-row">' + wings + '<span class="cf-crest"><small>NV</small>' + lv + '</span></div>' + (star > 0 ? '<span class="cf-top-stars">' + '★'.repeat(Math.min(5, star)) + '</span>' : '') + '</div>'
-            + '<div class="cf-stage">' + imgHtml + '</div>'
+            + '<div class="cf-stage">' + imgHtml + elOrb + '</div>'
             + '<div class="cf-body">'
-            + '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span class="cf-rk-pill" style="margin-bottom:0">' + syms[rk] + ' ' + R.n + '</span>' + elPill + '</div>'
+            + '<div class="cf-pills-row" style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-bottom:2px"><span class="cf-rk-pill" style="margin-bottom:0">' + syms[rk] + ' ' + R.n + '</span>' + elPill + '</div>'
             + '<div class="cf-title">' + nm + '</div>'
             + (opts.sub ? '<div class="cf-sub">' + opts.sub + '</div>' : '')
             + (opts.foot || '')
@@ -5449,8 +5450,8 @@ return PreviewRarityAura;}
                 const cost = warCardCost(p), hpV = Math.round(warMaxHp(p)), atkV = Math.round(warAttack(p));
                 const inner = clArenaCardHTML(sp, lv, star, zImg(sp.id), {
                     badge: '<span class="wf-card-cost" aria-label="Custo de essência ' + cost + '"><b>⚡ ' + cost + '</b></span>',
-                    sub: '❤' + hpV + ' · ⚔' + atkV,
-                    foot: '<span class="dk-field-badge"></span><div class="ported-essence-fill"></div><u class="dk-cooldown-mask"></u><span class="dk-cooldown-label"></span>'
+                    sub: '<span class="wf-st-hp">❤ ' + hpV + '</span><span class="wf-st-atk">⚔ ' + atkV + '</span>',
+                    foot: '<span class="dk-field-badge"></span><div class="ported-essence-fill"></div><span class="dk-cooldown-label"></span><u class="dk-cooldown-mask"></u>'
                 });
                 return '<div class="dk-slot battle-cf rk-' + rk + '" data-species="' + sp.id + '" data-level="' + lv + '" data-stars="' + star + '" data-rk="' + rk + '" data-k="' + k + '">'
                     + '<button type="button" class="dk-card rk-' + rk + '" data-wf="card" data-k="' + k + '" title="' + esc(sp.n + ' · ' + warRole(p).n + ' · Tecla ' + (k + 1)) + '">' + inner + '</button>'
@@ -6500,9 +6501,9 @@ return PreviewRarityAura;}
                 const tot = WAR_DCD[c.p.rk] + 1;
                 const uEl = card.querySelector('.dk-cooldown-mask');
                 const price=card.querySelector('.ported-cost');if(price)price.textContent='⚡ '+c.cost;
-                const cdLabel=card.querySelector('.dk-cooldown-label');if(cdLabel)cdLabel.textContent=c.cd>0?'⏳ Pronta em '+Math.ceil(c.cd)+' s':W.ess<c.cost?'Faltam '+Math.ceil(c.cost-W.ess)+' ⚡':'✓ Pronta';
+                const cdLabel=card.querySelector('.dk-cooldown-label');if(cdLabel){cdLabel.textContent=c.cd>0?'⏳ '+Math.ceil(c.cd)+'s':W.ess<c.cost?'Faltam '+Math.ceil(c.cost-W.ess)+' ⚡':'✓ Pronta';cdLabel.className='dk-cooldown-label '+(c.cd>0?'is-cd':W.ess<c.cost?'is-poor':'is-ready');}
                 card.setAttribute('aria-pressed',String(isSel));
-                if(uEl){uEl.style.width=(Math.max(0,Math.min(1,1-c.cd/tot))*90)+'%';uEl.style.height='7px';}
+                if(uEl){if(c.cd>0){uEl.style.display='block';uEl.style.width=(Math.max(0,Math.min(1,c.cd/tot))*100)+'%';}else{uEl.style.display='none';uEl.style.width='0%';}}
             }
             const dp = slot.querySelector('.dk-field-badge');
             if (dp) dp.textContent = cnt > 1 ? ('✓ ' + cnt + 'x') : '✓ NO CAMPO';

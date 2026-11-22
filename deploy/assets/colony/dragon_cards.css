@@ -1056,33 +1056,71 @@ html body .wfg-dc.cf-wrap .sls { position: relative; z-index: 9; display: flex; 
   overflow-x: auto !important;
   overflow-y: visible !important;
 }
+.cf-el-orb {
+  position: absolute; left: 6px; bottom: 5px; z-index: 6;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px; line-height: 1;
+  background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--el-c, #fbbf24) 36%, #1b1326), rgba(8, 5, 14, .92) 78%);
+  border: 1.5px solid var(--el-c, #fbbf24);
+  box-shadow: 0 2px 8px rgba(0,0,0,.78), 0 0 10px color-mix(in srgb, var(--el-c, #fbbf24) 52%, transparent);
+  pointer-events: none;
+}
 .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf {
-  flex: 0 0 126px !important;
-  width: 126px !important;
+  flex: 0 0 132px !important;
+  width: 132px !important;
   height: auto !important;
   min-height: 0 !important;
   padding: 0 !important;
   transform: translate3d(0, 0, 0) !important;
   transition: transform .16s cubic-bezier(.22, 1, .36, 1) !important;
 }
+@media (min-width: 960px) {
+  .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf {
+    flex: 0 0 152px !important;
+    width: 152px !important;
+  }
+  .cl-wf .dk-slot.battle-cf .cf-title { font-size: 13px !important; }
+  .cl-wf .dk-slot.battle-cf .cf-sub { font-size: 11px !important; }
+  .cl-wf .dk-slot.battle-cf .cf-el-orb { width: 32px; height: 32px; font-size: 17px; }
+}
 .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf:hover,
 .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf.sel-slot {
-  transform: translate3d(0, -18px, 0) scale(1.10) !important;
+  transform: translate3d(0, -18px, 0) scale(1.08) !important;
   z-index: 25 !important;
 }
-.cl-wf .dk-slot.battle-cf .dk-card.poor .cf-card { opacity: .52; filter: saturate(.5); }
+.cl-wf .dk-slot.battle-cf .dk-card.poor .cf-card { opacity: .62; filter: saturate(.6); }
 .cl-wf .dk-slot.battle-cf.sel-slot .cf-card { outline: 2.5px solid #fff0a8; outline-offset: 2px; }
 .cl-wf .dk-slot.battle-cf.in-field .cf-card { box-shadow: 0 0 0 2px #4ade80, 0 8px 18px rgba(0,0,0,.62); }
-.cl-wf .dk-slot.battle-cf .cf-card { aspect-ratio: 200 / 305 !important; height: auto !important; }
+.cl-wf .dk-slot.battle-cf .cf-card { aspect-ratio: 200 / 315 !important; height: auto !important; }
 .cl-wf .dk-slot.battle-cf .cf-head { padding: 4px 4px 1px 5px; min-height: 22px; align-items: flex-start !important; }
 .cl-wf .dk-slot.battle-cf .cf-wings { width: 52px; height: 22px; justify-content: flex-start; }
 .cl-wf .dk-slot.battle-cf .cf-crest { min-width: 36px; height: 19px; font-size: 9.5px; padding: 0 6px; }
 .cl-wf .dk-slot.battle-cf .cf-top-stars { font-size: 8px; padding: 0; }
 .cl-wf .dk-slot.battle-cf .cf-stage { height: auto !important; min-height: 0 !important; flex: 1 1 auto !important; padding: 4px 5px; }
-.cl-wf .dk-slot.battle-cf .cf-body { padding: 4px 6px 6px; text-align: center; }
-.cl-wf .dk-slot.battle-cf .cf-rk-pill { display: inline-flex !important; font-size: 7px !important; padding: 1px 5px !important; margin-bottom: 2px !important; }
-.cl-wf .dk-slot.battle-cf .cf-title { font-size: 11.5px; }
-.cl-wf .dk-slot.battle-cf .cf-sub { font-size: 9px; margin: 1px 0 0; color: #fde68a; }
+.cl-wf .dk-slot.battle-cf .cf-body {
+  padding: 5px 6px 6px !important;
+  text-align: center !important;
+  background: linear-gradient(180deg, rgba(10, 7, 16, .18) 0%, rgba(10, 7, 16, .82) 32%, rgba(8, 5, 14, .95) 100%) !important;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.cl-wf .dk-slot.battle-cf .cf-el-pill { display: none !important; }
+.cl-wf .dk-slot.battle-cf .cf-rk-pill { display: inline-flex !important; font-size: 7.5px !important; padding: 1px 6px !important; margin-bottom: 0 !important; }
+.cl-wf .dk-slot.battle-cf .cf-title { font-size: 12px; width: 100%; }
+.cl-wf .dk-slot.battle-cf .cf-sub {
+  display: flex !important; align-items: center; justify-content: center; gap: 5px; width: 100%;
+  font-family: 'Barlow', system-ui, sans-serif; font-size: 10.5px; font-weight: 900; margin: 1px 0 0;
+}
+.cl-wf .dk-slot.battle-cf .wf-st-hp {
+  display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 5px;
+  background: rgba(20, 83, 45, .45); border: 1px solid rgba(74, 222, 128, .42);
+  color: #4ade80 !important; text-shadow: 0 1px 3px rgba(0,0,0,.85);
+}
+.cl-wf .dk-slot.battle-cf .wf-st-atk {
+  display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 5px;
+  background: rgba(124, 45, 18, .48); border: 1px solid rgba(251, 146, 60, .46);
+  color: #fb923c !important; text-shadow: 0 1px 3px rgba(0,0,0,.85);
+}
 .cl-wf .dk-slot.battle-cf .wf-card-cost {
   position: absolute !important; right: 4px !important; left: auto !important; top: 4px !important; z-index: 11 !important;
   padding: 2px 6px !important; border-radius: 8px !important; width: auto !important; height: auto !important; min-width: 0 !important; min-height: 0 !important;
@@ -1092,37 +1130,55 @@ html body .wfg-dc.cf-wrap .sls { position: relative; z-index: 9; display: flex; 
 }
 .cl-wf .dk-slot.battle-cf .wf-card-cost.ready { background: linear-gradient(180deg, #16a34a, #14532d) !important; border-color: #bbf7d0 !important; }
 .cl-wf .dk-slot.battle-cf .wf-card-cost b { font-size: 11.5px !important; color: #fff !important; text-shadow: none !important; }
+.cl-wf .dk-slot.battle-cf .dk-field-badge {
+  position: static !important; order: -1; margin-bottom: 1px;
+  padding: 1px 6px !important; border-radius: 999px !important;
+  background: rgba(6, 95, 70, .92) !important; border: 1px solid #4ade80 !important;
+  color: #bbf7d0 !important; font-size: 8px !important; font-weight: 900 !important; line-height: 1.2 !important;
+}
+.cl-wf .dk-slot.battle-cf .ported-essence-fill { display: none !important; }
 .cl-wf .dk-slot.battle-cf .dk-cooldown-mask {
-  position: absolute !important; inset: 0 !important; z-index: 12 !important;
-  border-radius: 12px !important; background: rgba(8, 6, 14, .75) !important;
-  pointer-events: none;
+  position: static !important; inset: auto !important; display: none;
+  height: 4px !important; margin-top: 2px; border-radius: 999px !important;
+  background: linear-gradient(90deg, #f59e0b, #fde047) !important;
+  box-shadow: 0 0 8px rgba(251, 191, 36, .65);
+  pointer-events: none; align-self: flex-start;
 }
 .cl-wf .dk-slot.battle-cf .dk-cooldown-label {
-  position: absolute !important; left: 3px; right: 3px; bottom: 38px; z-index: 13 !important;
-  font-size: 9.5px !important; font-weight: 900 !important; color: #fef08a !important;
-  text-align: center; text-shadow: 0 1px 5px #000 !important; pointer-events: none;
+  position: static !important; inset: auto !important; display: block; width: 100%;
+  margin-top: 2px; padding: 1px 4px; border-radius: 5px;
+  font-family: 'Barlow', system-ui, sans-serif !important;
+  font-size: 9.5px !important; font-weight: 900 !important; line-height: 1.25 !important;
+  text-align: center; text-shadow: 0 1px 3px #000 !important; pointer-events: none;
 }
+.cl-wf .dk-slot.battle-cf .dk-cooldown-label.is-ready { color: #86efac !important; background: rgba(20, 83, 45, .36); }
+.cl-wf .dk-slot.battle-cf .dk-cooldown-label.is-poor { color: #d8b4fe !important; background: rgba(59, 7, 100, .42); }
+.cl-wf .dk-slot.battle-cf .dk-cooldown-label.is-cd { color: #fde047 !important; background: rgba(120, 53, 15, .48); }
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
   .cl-wf #wf-card-dock { left: max(72px, env(safe-area-inset-left)) !important; bottom: max(3px, env(safe-area-inset-bottom)) !important; }
   .cl-wf #wf-card-dock .dk-rail-inner { gap: 6px !important; padding: 20px 6px 2px !important; margin-top: -14px !important; }
-  .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf { flex: 0 0 78px !important; width: 78px !important; }
+  .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf { flex: 0 0 82px !important; width: 82px !important; }
   .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf:hover,
   .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf.sel-slot { transform: translate3d(0, -10px, 0) scale(1.06) !important; }
+  .cl-wf .dk-slot.battle-cf .cf-el-orb { width: 20px; height: 20px; font-size: 11px; left: 3px; bottom: 3px; }
   .cl-wf .dk-slot.battle-cf .cf-title { font-size: 9px; }
-  .cl-wf .dk-slot.battle-cf .cf-sub { font-size: 7px; }
+  .cl-wf .dk-slot.battle-cf .cf-sub { font-size: 7.5px; gap: 3px; }
+  .cl-wf .dk-slot.battle-cf .wf-st-hp, .cl-wf .dk-slot.battle-cf .wf-st-atk { padding: 0 3px; }
+  .cl-wf .dk-slot.battle-cf .dk-cooldown-label { font-size: 7.5px !important; }
   .cl-wf .dk-slot.battle-cf .wf-card-cost { padding: 1px 4px !important; }
   .cl-wf .dk-slot.battle-cf .wf-card-cost b { font-size: 9.5px !important; }
 }
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 445px) {
   .cl-wf #wf-card-dock { left: max(66px, env(safe-area-inset-left)) !important; bottom: max(2px, env(safe-area-inset-bottom)) !important; }
   .cl-wf #wf-card-dock .dk-rail-inner { gap: 5px !important; padding: 18px 5px 1px !important; margin-top: -13px !important; }
-  .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf { flex: 0 0 68px !important; width: 68px !important; }
+  .cl-wf #wf-card-dock .dk-rail-inner .dk-slot.battle-cf { flex: 0 0 72px !important; width: 72px !important; }
   .cl-wf .dk-slot.battle-cf .cf-head { padding: 2px 3px 0 !important; min-height: 16px !important; }
   .cl-wf .dk-slot.battle-cf .cf-crest { min-width: 26px !important; height: 14px !important; font-size: 7.5px !important; padding: 0 4px !important; }
-  .cl-wf .dk-slot.battle-cf .cf-body { padding: 2px 3px 3px !important; }
+  .cl-wf .dk-slot.battle-cf .cf-body { padding: 2px 3px 3px !important; gap: 1px !important; }
   .cl-wf .dk-slot.battle-cf .cf-rk-pill { display: none !important; }
   .cl-wf .dk-slot.battle-cf .cf-title { font-size: 8.5px !important; }
   .cl-wf .dk-slot.battle-cf .cf-sub { font-size: 6.8px !important; }
+  .cl-wf .dk-slot.battle-cf .dk-cooldown-label { font-size: 6.8px !important; }
   .cl-wf .dk-slot.battle-cf .wf-card-cost b { font-size: 8.5px !important; }
 }
 
